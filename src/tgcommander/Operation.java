@@ -7,7 +7,8 @@ import java.io.IOException;
 import java.text.DateFormat;
 
 /**
- *
+ * Ez csak ilyen kókány osztály, majd máshogy kell ezt megirni, metódusok
+ * se a legelegánsabbak néhol...
  * @author ktorpi
  */
 public class Operation {
@@ -19,71 +20,78 @@ public class Operation {
 
     }
 
-    /**
-     * Fájl másolása.
-     * FIXME: még majd kezelni kell a felülírást, meg az arra rákérdezést
-     * @param source A forrásfájl elérési útvonala.
-     * @param dest A célkönyvtár elérési útvonala.
-     */
-    void copyFile(String source, String dest) {
-        int b;
-        FileInputStream in = null;
-        FileOutputStream out = null;
-
-        try {
-            in = new FileInputStream(source);
-            out = new FileOutputStream(dest + source.substring(source.lastIndexOf("/")));
-            while ((b = in.read()) != -1) {             // olvasás-írás bájtonként
-                out.write(b);
-            }
-        } catch (IOException e){
-            System.err.println(e.getMessage());
-        } finally {                                     // állományok lezárása
-            try {
-                if (in != null) {
-                    in.close();
-                }
-                if (out != null) {
-                    out.close();
-                }
-            } catch (IOException e) {
-                System.err.println(e.getMessage());
-            }
-        }
-    }
 
     /**
-     * Fájl másolása.
+     * Fájl másolása a megadott fájlba.
      * FIXME: még majd kezelni kell a felülírást, meg az arra rákérdezést
      * @param source A forrsáfájl bejegyzés.
-     * @param dest Célkönyvtár bejegyzés.
+     * @param dest A célfájl bejegyzés. Fontos: Nem a célkönyvtár!
      */
-    void copyFile(File source, File dest) {
-        int b;
+    void copyFile(File src, File dest) throws IOException {
+        int len;                                        // a tényleges kiolvasott bájtok száma
+        byte buffer[] = new byte[1024];                 // 1 KB-os puffer
         FileInputStream in = null;
         FileOutputStream out = null;
 
         try {
-            in = new FileInputStream(source);
-            out = new FileOutputStream(dest.getPath() + "/" + source.getName());
-            while ((b = in.read()) != -1) {             // olvasás-írás bájtonként
-                out.write(b);
+            in = new FileInputStream(src);
+            out = new FileOutputStream(dest);
+            while ((len = in.read(buffer)) != -1) {     // beolvasás a pufferbe, majd a beolvasott bájtok kiírása
+                out.write(buffer, 0, len);
             }
-        } catch (IOException e){
-            System.err.println(e.getMessage());
         } finally {                                     // állományok lezárása
-            try {
-                if (in != null) {
-                    in.close();
-                }
-                if (out != null) {
-                    out.close();
-                }
-            } catch (IOException e) {
-                System.err.println(e.getMessage());
-            }
+            if (in != null) in.close();
+            if (out != null) out.close();
         }
     }
+
+
+    /**
+     * Fájl vagy mappa másolása. Ha a mappa nem üres, a másolás
+     * rekurzivan történik.
+     * FIXME: Ha egy könyvtárból valmelyik saját alkönyvtárába másolunk, akkor
+     * ez az algoritmus megfekszik, mint a büdösbogár, de legalábbis teleírja a lemezt.
+     *
+     * @param src E könyvtár alatti bejegyzéseket másoljuk, ill ezt a fájlt. Fontos, hogy
+     * maga a mappa nem másolódik, csak a tartalma.
+     * @param dest E könyvtárba másolunk, ill ebbe a fájlba.
+     * @throws IOException Hiba lépett fel a másolás közben.
+     */
+    void copyEntry(File src, File dest) throws IOException {
+        if (src.isDirectory()) {
+            if (!dest.exists()) {                       // ha a célkönyvtár nemlétezett létrehozzuk
+                dest.mkdir();
+            }
+
+            String[] list = src.list();
+            for (String i : list) {                     // a könyvtár tartalmát is másoljuk
+                copyEntry(new File(src, i), new File(dest, i));
+            }
+        } else {
+            copyFile(src, dest);
+        }
+    }
+
+
+    /**
+     * Fájl vagy mappa törlése. Amennyiben a mappa nem üres,
+     * rekurzívan töröljük.
+     * @param f A törlendő bejegyzés.
+     * @return false Ha a törlés nemsikerült (pl.: jogosultságok miatt).
+     */
+    boolean deleteEntry(File f) {
+        if (f.isDirectory()) {
+            File[] fList = f.listFiles();
+            for (File i : fList) {
+                if (! deleteEntry(i)) {
+                    return false;
+                }
+            }
+        }
+
+        return f.delete();                              // ha f mappa, mostmár nem üres, törölhetjük
+    }
+
 
     /**
      * Könyvtár tartalmának listázása.
