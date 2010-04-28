@@ -58,6 +58,9 @@ public class Operation {
      * @throws IOException Hiba lépett fel a másolás közben.
      */
     void copyEntry(File src, File dest) throws IOException {
+
+        dest = new File(dest, src.getName());
+
         if (src.isDirectory()) {
             if (!dest.exists()) {                       // ha a célkönyvtár nemlétezett létrehozzuk
                 dest.mkdir();
@@ -65,7 +68,7 @@ public class Operation {
 
             String[] list = src.list();
             for (String i : list) {                     // a könyvtár tartalmát is másoljuk
-                copyEntry(new File(src, i), new File(dest, i));
+                copyEntry(new File(src, i), dest);
             }
         } else {
             copyFile(src, dest);
