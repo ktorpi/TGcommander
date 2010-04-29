@@ -4,28 +4,52 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
- * Csomagoló osztály.
+ * Egy File típusú objektumot becsomagoló osztály, ami
+ * könyvtár törléssel, másolással, stb. bővíti a csomagolt File-t.
+ *
  * @author Kádár István
  */
 public class EFile {
 
+    /** A becsomagolt File. */
     File file;
 
     /**
-     * Konstruktor.
-     * @param f
+     * Ha a bejegyzés könyvtár ez az adattag tárolja a benen lévő
+     * bejegyzések atrribútumait, formázott formában, ha a bejgyzés fájl,
+     * értéke null.
+     */
+    EntryAttributes[] content = null;
+
+
+    /**
+     * Konstruktor: mezök inicializálása.
+     * @param f A csomagolt File, amin a műveleteket végezzük.
      */
     public EFile(File f) {
         file = f;
-    }
 
+        // a content mező inicializálása
+        File[] fileList = file.listFiles();
+        if (fileList != null) {
+            content = new EntryAttributes[fileList.length];
+
+            for (int i = 0; i < content.length; i++) {
+                content[i] = new EntryAttributes(fileList[i]);
+            }
+
+            // a tartalom rendezése: a könyvtárakat előre, azon belöl abc-rendbe
+            Arrays.sort(content);
+        }
+    }
 
     /**
      * A csomagolt file másolása a megadott fájlba.
      * @param dest A célfájl bejegyzés. Fontos: Nem a célkönyvtár!
-     * @throws IOExceptionhiba lépett fel a másolás közben
+     * @throws IOException hiba lépett fel a másolás közben
      */
     private void copyFile(File dest) throws IOException {
         int len;                                        // a tényleges kiolvasott bájtok száma
@@ -62,7 +86,7 @@ public class EFile {
      * @param dest Ebbe a könyvtárba másolunk. Fontos, hogy ez csakis könyvtár.
      * @throws IOException Hiba lépett fel a másolás közben.
      */
-    void copyEntry(File dest) throws IOException {
+    public void copyEntry(File dest) throws IOException {
         // a forrás rendben van-e?
         if (! file.exists()) {
             throw new IOException("A forrás nem található: " + file.getAbsolutePath());
@@ -85,9 +109,9 @@ public class EFile {
             }
         } else {                                        // ha a file fájl, másoljuk is
             try {
-                if (dest.exists()) throw new OverwritingExeption("A fájl már létezik: " + dest.getAbsolutePath());
+                if (dest.exists()) throw new OverwritingException("A fájl már létezik: " + dest.getAbsolutePath());
                 copyFile(dest);
-            } catch (OverwritingExeption e) {
+            } catch (OverwritingException e) {
                 /*
                  * És akkor itt fel kéne dobni egy panelt, hogy akor felülírjuk,
                  * átugorjuk vagy mit csináljunk...
@@ -101,13 +125,13 @@ public class EFile {
         }
     }
 
-
     /**
      * A csomagolt 'file'-hoz tartozó bejegyzést törlése. Amennyiben a file mappa
      * és nem üres, rekurzívan töröljük.
      * @return false Ha a törlés nemsikerült (pl.: jogosultságok miatt).
+     * @throws IOException
      */
-    boolean deleteEntry() throws IOException {
+    public boolean deleteEntry() throws IOException {
         if (file.isDirectory()) {
             File[] fList = file.listFiles();
             for (File i : fList) {
@@ -127,6 +151,15 @@ public class EFile {
         }
 
         return file.delete();                              // ha f mappa, mostmár nem üres, törölhetjük
+    }
+
+
+    /**
+     * A becsomagolt file tartalmának visszadása.
+     * @return a tartalmom, mint EntryAttributes tömb
+     */
+    public EntryAttributes[] getContent() {
+        return content;
     }
 
 }

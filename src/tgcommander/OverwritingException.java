@@ -6,9 +6,9 @@ package tgcommander;
  *
  * @author Kádád István
  */
-public class OverwritingExeption extends Exception {
+public class OverwritingException extends Exception {
 
-    public OverwritingExeption(String msg) {
+    public OverwritingException(String msg) {
         super(msg);
     }
 

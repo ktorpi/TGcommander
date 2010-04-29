@@ -14,7 +14,6 @@ public class Main {
 
         EFile wrapped = new EFile(file1);
 
-        wrapped.deleteEntry();
 /*
         Operation muv = new Operation();
         muv.copyEntry(file1, file2);
