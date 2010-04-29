@@ -89,6 +89,7 @@ public class EntryAttributes implements Comparable<EntryAttributes> {
      * Az osztály szöveges reprezentációja.
      * @return Az attribútumok tabulátorral elválasztva.
      */
+    @Override
     public String toString() {
         return name + "\t" + ext + "\t" + size + "\t" + date + "\t" + rights;
     }

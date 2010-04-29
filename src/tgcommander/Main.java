@@ -13,16 +13,9 @@ public class Main {
         File file2 = new File(args[1]);
 
         EFile wrapped = new EFile(file1);
-
-/*
-        Operation muv = new Operation();
-        muv.copyEntry(file1, file2);
-  */      // muv.copyFile(args[0], args[1]);
-       /* muv.deleteEntry(file1);
-        if (file1.delete()) {
-            System.out.println("Sikeres törlés!");
-        } else {
-            System.out.println("Sikertelen törlés!");
+        EntryAttributes[] cont = wrapped.getContent(false);
+        for (int i = 0; i<cont.length; i++) {
+            System.out.println(cont[i]);
         }
-   */ }
+    }
 }

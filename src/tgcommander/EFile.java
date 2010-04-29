@@ -3,6 +3,7 @@ package tgcommander;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -26,24 +27,11 @@ public class EFile {
 
 
     /**
-     * Konstruktor: mezök inicializálása.
+     * Konstruktor
      * @param f A csomagolt File, amin a műveleteket végezzük.
      */
     public EFile(File f) {
         file = f;
-
-        // a content mező inicializálása
-        File[] fileList = file.listFiles();
-        if (fileList != null) {
-            content = new EntryAttributes[fileList.length];
-
-            for (int i = 0; i < content.length; i++) {
-                content[i] = new EntryAttributes(fileList[i]);
-            }
-
-            // a tartalom rendezése: a könyvtárakat előre, azon belöl abc-rendbe
-            Arrays.sort(content);
-        }
     }
 
     /**
@@ -109,7 +97,9 @@ public class EFile {
             }
         } else {                                        // ha a file fájl, másoljuk is
             try {
-                if (dest.exists()) throw new OverwritingException("A fájl már létezik: " + dest.getAbsolutePath());
+                if (dest.exists()) {
+                    throw new OverwritingException("A fájl már létezik: " + dest.getAbsolutePath());
+                }
                 copyFile(dest);
             } catch (OverwritingException e) {
                 /*
@@ -153,12 +143,39 @@ public class EFile {
         return file.delete();                              // ha f mappa, mostmár nem üres, törölhetjük
     }
 
-
     /**
      * A becsomagolt file tartalmának visszadása.
-     * @return a tartalmom, mint EntryAttributes tömb
+     * @param showHidden listázzuk-e a rejtett fájlokat
+     * @return A tartalmom, mint EntryAttributes tömb. Null ha nem sikerült
+     * a tartalmat összeállítani, pl. azért mert fájl tartalmát kértük le.
      */
-    public EntryAttributes[] getContent() {
+    public EntryAttributes[] getContent(boolean showHidden) {
+        if (content == null) {                          // ha null, a content mező inicializálása
+            File[] fileList;
+            if (showHidden) {
+                fileList = file.listFiles();
+            } else {
+                // implementáljuk a FilenameFilter interfészt
+                FilenameFilter filter = new FilenameFilter() {
+                    public boolean accept(File dir, String name) {
+                        // rejtett fájlokat nemkérünk
+                        return !(new File(dir, name).isHidden());
+                    }
+                };
+                fileList = file.listFiles(filter);
+            }
+            if (fileList != null) {
+                content = new EntryAttributes[fileList.length];
+
+                for (int i = 0; i < content.length; i++) {
+                    content[i] = new EntryAttributes(fileList[i]);
+                }
+
+                // a tartalom rendezése: a könyvtárakat előre, azon belöl abc-rendbe
+                Arrays.sort(content);
+            }
+        }
+
         return content;
     }
 
