@@ -8,12 +8,16 @@ import java.text.DateFormat;
  * @author Kádár István
  */
 public class EntryAttributes implements Comparable<EntryAttributes> {
-
-    private String name;                    // név
-    private String ext;                     // kiterjesztés, könyvtárnál üres
-    private String size;                    // méret, könyvtár esetén "<DIR>"
-    private String date;                    // utolsó modosítás dátuma
-    private String rights;                  // jogosultságok (rwx)
+    /** bejegyzés neve */
+    private String name;
+    /** kiterjesztés */
+    private String ext;
+    /** méret */
+    private String size;
+    /** utolsó módosítás dátuma */
+    private String date;
+    /** rxw jogosultságok */
+    private String rights;
 
     /**
      * Konstruktor.
@@ -35,7 +39,7 @@ public class EntryAttributes implements Comparable<EntryAttributes> {
                 name = f.getName();
                 ext = "";
             }
-            size = String.valueOf(f.length());
+            size = formatSize(f.length());
         }
         
         DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
@@ -45,6 +49,30 @@ public class EntryAttributes implements Comparable<EntryAttributes> {
         rights += (f.canExecute()) ? "x" : "-";
     }
 
+    /** A bejegyzés méreteinek lehetséges mértékegységei. */
+    private enum unit {
+        B, KB, MB, GB, TB, PB, EB
+    }
+
+    /**
+     * A bájtokban kapott méret átváltása és kiegészítése a mertékegységel.
+     * @param size A formázandó méret bájtokban.
+     * @return A formázott méret.
+     */
+    private String formatSize(long length) {
+        int i = 0;
+        double s = (double)length;
+        while (s >= 1024 && i <= unit.EB.ordinal()) {
+            s /= 1024.0;
+            i++;
+        }
+        // kerekítés 2 tizedsjegyre
+        s *= 100.0;
+        s = Math.rint(s);
+        s /=100;
+
+        return s + " " + unit.values()[i].toString();
+    }
     
     // Getterek
     

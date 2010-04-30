@@ -16,7 +16,7 @@ import java.util.Arrays;
 public class EFile {
 
     /** A becsomagolt File. */
-    File file;
+    private File file;
 
     /**
      * Ha a bejegyzés könyvtár ez az adattag tárolja a benen lévő
@@ -86,6 +86,12 @@ public class EFile {
         dest = new File(dest, file.getName());
 
         if (file.isDirectory()) {                       // a file könyvtár
+            if (dest.getAbsolutePath().startsWith(file.getAbsolutePath())) {
+                throw new IOException
+                            ("Nem másolható/helyezhető át "
+                                + file.getAbsolutePath() + " saját alkönyvtárába "
+                                + dest.getAbsolutePath());
+            }
             if (! dest.exists()) {
                 if (! dest.mkdir()) {
                     throw new IOException("Nem hozható létre a könyvtár: " + dest.getAbsolutePath());
