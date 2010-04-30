@@ -69,7 +69,7 @@ public class EntryAttributes implements Comparable<EntryAttributes> {
         // kerekítés 2 tizedsjegyre
         s *= 100.0;
         s = Math.rint(s);
-        s /=100;
+        s /= 100;
 
         return s + " " + unit.values()[i].toString();
     }

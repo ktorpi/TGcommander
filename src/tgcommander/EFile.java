@@ -23,7 +23,7 @@ public class EFile {
      * bejegyzések atrribútumait, formázott formában, ha a bejgyzés fájl,
      * értéke null.
      */
-    EntryAttributes[] content = null;
+    private EntryAttributes[] content = null;
 
 
     /**
@@ -67,11 +67,11 @@ public class EFile {
     /**
      * A konstruktorban megadott 'file' fájl vagy mappa másolása. Ha file mappa
      * és nem üres, a másolás rekurzivan történik.
-     * 
-     * FIXME: Ha egy könyvtárból valmelyik saját alkönyvtárába másolunk, akkor
-     * ez az algoritmus megfekszik, mint a büdösbogár, de legalábbis teleírja a lemezt.
      *
-     * @param dest Ebbe a könyvtárba másolunk. Fontos, hogy ez csakis könyvtár.
+     * @param dest A cél bejegyzés. Ebbe kerül a a forrás tartalma.
+     * Fájl esetén ebbe az új fájba kerül a másolandó fáj tartalma, ha
+     * pedig könyvtárról van szó, akkor a forráskönyvtár alatti bejegyzések
+     * másolódnak a dest alá.
      * @throws IOException Hiba lépett fel a másolás közben.
      */
     public void copyEntry(File dest) throws IOException {
@@ -79,18 +79,16 @@ public class EFile {
         if (! file.exists()) {
             throw new IOException("A forrás nem található: " + file.getAbsolutePath());
         } else if (! file.canRead()) {
-            throw new IOException("Nincs megfelelő jogosutságod a másoláshoz: " + file.getAbsolutePath());
+            throw new IOException("Hozzáférés megtagadva " + file.getAbsolutePath()
+                                    + " Ellenőrizd a jogosultságokat!");
         }
-
-        // a tényleges cél, ebbe már nem a file, hanem maga a file tartalma másolódik
-        dest = new File(dest, file.getName());
 
         if (file.isDirectory()) {                       // a file könyvtár
             if (dest.getAbsolutePath().startsWith(file.getAbsolutePath())) {
                 throw new IOException
-                            ("Nem másolható/helyezhető át "
-                                + file.getAbsolutePath() + " saját alkönyvtárába "
-                                + dest.getAbsolutePath());
+                            ("Nem másolható/helyezhető át: "
+                                + file.getAbsolutePath() + " a saját alkönyvtárába: "
+                                + dest.getParent());
             }
             if (! dest.exists()) {
                 if (! dest.mkdir()) {
@@ -99,7 +97,7 @@ public class EFile {
             }
             String[] list = file.list();
             for (String i : list) {
-                new EFile(new File(file, i)).copyEntry(dest);
+                new EFile(new File(file, i)).copyEntry(new File(dest, i));
             }
         } else {                                        // ha a file fájl, másoljuk is
             try {
@@ -128,12 +126,19 @@ public class EFile {
      * @throws IOException
      */
     public boolean deleteEntry() throws IOException {
+        if (! file.exists()) {
+            throw new IOException("Nem található: " + file.getAbsolutePath());
+        } else if (! file.canWrite()) {
+            throw new IOException("Hozzáférés megtagadva " + file.getAbsolutePath()
+                                    + " Ellenőrizd a jogosultságokat!");
+        }
+
         if (file.isDirectory()) {
             File[] fList = file.listFiles();
             for (File i : fList) {
                 if (! new EFile(i).deleteEntry()) {
                     /*
-                     * FIXME: nemtudom menynire akarunk belemenni, de ha nagyon
+                     * TODO: nemtudom menynire akarunk belemenni, de ha nagyon
                      * akkor itt is lehetne dobni egy ablkot, hogy kihagyjukjuk, ujrapróbáljuk meg ilyenek...
                      * az "itt"-et ugyértem hogy a kivétel elkapásákor
                      * Ha meg nem akor nem is kell kivételt dobni szerintem itt.
@@ -147,6 +152,34 @@ public class EFile {
         }
 
         return file.delete();                              // ha f mappa, mostmár nem üres, törölhetjük
+    }
+
+    /**
+     * Átnevezés/áthelyezés. Ha a "gyári" renameTo() metódusnak nem sikerül
+     * a művelet (pl. mert a cél egy másik fájlrendszeren van), akkor a
+     * másolás-törlés kombinációval probálkozunk.
+     * @param dest Amire át akarjuk nevezni, ahova átakarjuk helyezni.
+     * @throws IOException Sikertelen átnevezés/áthelyezés
+     */
+    public void renameEntry(File dest) throws IOException {
+        try {
+            if (!dest.exists()) {
+                if (!file.renameTo(dest)) {             // ha nem sikerült átnevezéssel, akkor másolás-törlés
+                    copyEntry(dest);
+                    if (!deleteEntry()) {
+                        throw new IOException("Nem sikerült törölni a következőt: "
+                                + file.getAbsolutePath());
+                    }
+                }
+            } else {
+                throw new OverwritingException("Már létezik: " + dest.getAbsolutePath());
+            }
+        } catch (OverwritingException e) {
+            /*
+             * TODO: Valahol itt is kéne akkor egy ablakot földöbni.
+             */
+            System.err.println(e.getMessage());
+        }
     }
 
     /**
