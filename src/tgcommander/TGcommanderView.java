@@ -10,15 +10,72 @@ import org.jdesktop.application.SingleFrameApplication;
 import org.jdesktop.application.FrameView;
 import org.jdesktop.application.TaskMonitor;
 import java.awt.event.*;
-import javax.swing.Timer;
-import javax.swing.Icon;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
+import javax.swing.*;
+import javax.swing.table.*;
+
+import java.io.*;
 
 /**
  * The application's main frame.
  */
-public class TGcommanderView extends FrameView {
+public class TGcommanderView extends FrameView implements MouseListener {
+
+    private EntryAttributes[] bal;
+    private EntryAttributes[] jobb;
+
+    public void mouseClicked(MouseEvent e){
+        JTable target = (JTable)e.getSource();
+        int id = target.getSelectedRow();
+        if (e.getClickCount() == 1) {
+            
+
+        } else if (e.getClickCount() == 2) {
+
+        }
+    }
+
+    public void listDir(boolean hova, EFile mit, boolean hidden) {
+        EntryAttributes[] ea = mit.getContent(hidden);
+        JTable target = listaBal;
+        bal = ea;
+        if (hova) {
+            target = listaJobb;
+            jobb = ea;
+        }
+        DefaultTableModel dtm = (DefaultTableModel)target.getModel();
+        dtm.getDataVector().removeAllElements();
+        Object[][] tomb = new Object[ea.length][5];
+        int i = 0;
+        for (EntryAttributes e : ea) {
+            tomb[i][0] = e.getName();
+            tomb[i][1] = e.getExt();
+            tomb[i][2] = e.getSize();
+            tomb[i][3] = e.getDate();
+            tomb[i][4] = e.getRights();
+            i++;
+        }
+
+        target.setModel(new javax.swing.table.DefaultTableModel(
+            tomb,
+            new String [] {
+                "Név", "Kiterjesztés", "Méret", "Utoljára módosítva", "Jogosultságok"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                true, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+
+    }
+
+    public void mousePressed(MouseEvent e){}
+    public void mouseReleased(MouseEvent e){}
+    public void mouseEntered(MouseEvent e){}
+    public void mouseExited(MouseEvent e){}
 
     public TGcommanderView(SingleFrameApplication app) {
         super(app);
@@ -78,6 +135,11 @@ public class TGcommanderView extends FrameView {
                 }
             }
         });
+
+        //custom initialize
+        listDir(false,new EFile(new File("/")),false);
+        listDir(true,new EFile(new File("/")),false);
+        
     }
 
     @Action
@@ -206,6 +268,7 @@ public class TGcommanderView extends FrameView {
             }
         });
 
+        panelBal.setAutoscrolls(true);
         panelBal.setName("panelBal"); // NOI18N
         panelBal.setPreferredSize(new java.awt.Dimension(400, 500));
 
@@ -228,9 +291,12 @@ public class TGcommanderView extends FrameView {
                 return canEdit [columnIndex];
             }
         });
-        listaBal.setMaximumSize(new java.awt.Dimension(2147483647, 1200));
+        listaBal.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
+        listaBal.setFillsViewportHeight(true);
+        listaBal.setMaximumSize(new java.awt.Dimension(2147483647, 152155141));
         listaBal.setName("listaBal"); // NOI18N
         listaBal.setPreferredSize(new java.awt.Dimension(390, 500));
+        listaBal.setRowHeight(10);
         listaBal.setShowVerticalLines(false);
         listaBal.getTableHeader().setReorderingAllowed(false);
         panelBal.setViewportView(listaBal);
@@ -452,11 +518,13 @@ public class TGcommanderView extends FrameView {
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, mainPanelLayout.createSequentialGroup()
                 .addComponent(eszkoztar, javax.swing.GroupLayout.PREFERRED_SIZE, 302, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 334, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 408, Short.MAX_VALUE)
                 .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addComponent(szabadHelyPane, javax.swing.GroupLayout.DEFAULT_SIZE, 732, Short.MAX_VALUE)
-            .addComponent(aktualisKonyvtarPane, javax.swing.GroupLayout.DEFAULT_SIZE, 732, Short.MAX_VALUE)
-            .addComponent(panelek, javax.swing.GroupLayout.DEFAULT_SIZE, 732, Short.MAX_VALUE)
+            .addGroup(mainPanelLayout.createSequentialGroup()
+                .addComponent(aktualisKonyvtarPane, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(szabadHelyPane, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE))
+            .addComponent(panelek, javax.swing.GroupLayout.DEFAULT_SIZE, 806, Short.MAX_VALUE)
         );
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -465,10 +533,10 @@ public class TGcommanderView extends FrameView {
                     .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(eszkoztar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(szabadHelyPane, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(aktualisKonyvtarPane, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(szabadHelyPane, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(aktualisKonyvtarPane, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(30, 30, 30)
                 .addComponent(panelek, javax.swing.GroupLayout.DEFAULT_SIZE, 363, Short.MAX_VALUE))
         );
 
@@ -546,7 +614,7 @@ public class TGcommanderView extends FrameView {
             .addGroup(statusPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(statusMessageLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 562, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 550, Short.MAX_VALUE)
                 .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(statusAnimationLabel)
