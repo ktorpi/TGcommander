@@ -59,8 +59,8 @@ public class TGcommanderView extends FrameView implements MouseListener {
             tomb,
             new String [] {
                 "Név", "Kiterjesztés", "Méret", "Utoljára módosítva", "Jogosultságok"
-            }
-        ) {
+            })
+        {
             boolean[] canEdit = new boolean [] {
                 true, false, false, false, false
             };
@@ -69,6 +69,11 @@ public class TGcommanderView extends FrameView implements MouseListener {
                 return canEdit [columnIndex];
             }
         });
+
+        target.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+        panelBal.setViewportView(listaBal);
+
+       
 
     }
 
@@ -137,8 +142,8 @@ public class TGcommanderView extends FrameView implements MouseListener {
         });
 
         //custom initialize
-        listDir(false,new EFile(new File("/")),false);
-        listDir(true,new EFile(new File("/")),false);
+        listDir(false,new EFile(new File("/bin")),true);
+        listDir(true,new EFile(new File("/bin")),true);
         
     }
 
@@ -170,7 +175,7 @@ public class TGcommanderView extends FrameView implements MouseListener {
         ujKonyvtarGomb = new javax.swing.JButton();
         torlesGomb = new javax.swing.JButton();
         panelek = new javax.swing.JSplitPane();
-        panelBal = new javax.swing.JScrollPane();
+        panelBal = new javax.swing.JScrollPane(listaBal);
         listaBal = new javax.swing.JTable();
         panelJobb = new javax.swing.JScrollPane();
         listaJobb = new javax.swing.JTable();
@@ -268,6 +273,7 @@ public class TGcommanderView extends FrameView implements MouseListener {
             }
         });
 
+        panelBal.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         panelBal.setAutoscrolls(true);
         panelBal.setName("panelBal"); // NOI18N
         panelBal.setPreferredSize(new java.awt.Dimension(400, 500));
@@ -282,28 +288,9 @@ public class TGcommanderView extends FrameView implements MouseListener {
             new String [] {
                 "Név", "Méret", "Utoljára módosítva", "Jogosultságok"
             }
-        ) {
-            boolean[] canEdit = new boolean [] {
-                true, false, false, false
-            };
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        listaBal.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
-        listaBal.setFillsViewportHeight(true);
-        listaBal.setMaximumSize(new java.awt.Dimension(2147483647, 152155141));
+        ));
         listaBal.setName("listaBal"); // NOI18N
-        listaBal.setPreferredSize(new java.awt.Dimension(390, 500));
-        listaBal.setRowHeight(10);
-        listaBal.setShowVerticalLines(false);
-        listaBal.getTableHeader().setReorderingAllowed(false);
         panelBal.setViewportView(listaBal);
-        listaBal.getColumnModel().getColumn(0).setHeaderValue(resourceMap.getString("listaBal.columnModel.title0")); // NOI18N
-        listaBal.getColumnModel().getColumn(1).setHeaderValue(resourceMap.getString("listaBal.columnModel.title1")); // NOI18N
-        listaBal.getColumnModel().getColumn(2).setHeaderValue(resourceMap.getString("listaBal.columnModel.title2")); // NOI18N
-        listaBal.getColumnModel().getColumn(3).setHeaderValue(resourceMap.getString("listaBal.columnModel.title3")); // NOI18N
 
         panelek.setLeftComponent(panelBal);
 
