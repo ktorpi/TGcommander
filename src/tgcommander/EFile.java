@@ -7,6 +7,8 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Arrays;
 
+import javax.swing.*;
+
 /**
  * Egy File típusú objektumot becsomagoló osztály, ami
  * könyvtár törléssel, másolással, stb. bővíti a csomagolt File-t.
@@ -17,6 +19,13 @@ public class EFile {
 
     /** A becsomagolt File. */
     private File file;
+
+    /**
+     * getter a file-hoz
+     */
+    public File getFile() {
+        return this.file;
+    }
 
     /**
      * Ha a bejegyzés könyvtár ez az adattag tárolja a benen lévő
@@ -74,7 +83,7 @@ public class EFile {
      * másolódnak a dest alá.
      * @throws IOException Hiba lépett fel a másolás közben.
      */
-    public void copyEntry(File dest) throws IOException {
+    public void copyEntry(File dest, boolean forced) throws IOException, OverwritingException {
         // a forrás rendben van-e?
         if (! file.exists()) {
             throw new IOException("A forrás nem található: " + file.getAbsolutePath());
@@ -97,25 +106,13 @@ public class EFile {
             }
             String[] list = file.list();
             for (String i : list) {
-                new EFile(new File(file, i)).copyEntry(new File(dest, i));
+                new EFile(new File(file, i)).copyEntry(new File(dest, i), false);
             }
         } else {                                        // ha a file fájl, másoljuk is
-            try {
-                if (dest.exists()) {
-                    throw new OverwritingException("A fájl már létezik: " + dest.getAbsolutePath());
-                }
-                copyFile(dest);
-            } catch (OverwritingException e) {
-                /*
-                 * És akkor itt fel kéne dobni egy panelt, hogy akor felülírjuk,
-                 * átugorjuk vagy mit csináljunk...
-                 */
-            } catch (IOException e) {
-                /*
-                 * A másolás nem sikerült, megint kéne egy feldobott ablak, bár lehet
-                 * hogy ilyenkor nem szokott lenni.
-                 */
+            if (dest.exists() && !forced) {
+                throw new OverwritingException("A fájl már létezik: " + dest.getAbsolutePath());
             }
+            copyFile(dest);
         }
     }
 
@@ -165,7 +162,7 @@ public class EFile {
         try {
             if (!dest.exists()) {
                 if (!file.renameTo(dest)) {             // ha nem sikerült átnevezéssel, akkor másolás-törlés
-                    copyEntry(dest);
+                    copyEntry(dest, false);
                     if (!deleteEntry()) {
                         throw new IOException("Nem sikerült törölni a következőt: "
                                 + file.getAbsolutePath());

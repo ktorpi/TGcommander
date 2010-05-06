@@ -20,32 +20,72 @@ import java.io.*;
  */
 public class TGcommanderView extends FrameView implements MouseListener {
 
-    private EntryAttributes[] bal;
-    private EntryAttributes[] jobb;
+    private EFile bal;
+    private EFile jobb;
+    private boolean focus = false;
+    private boolean balHidden = false;
+    private boolean jobbHidden = false;
 
     public void mouseClicked(MouseEvent e){
+
+        //melyik oldalra kattintottak
         JTable target = (JTable)e.getSource();
+        //melyik sorra
         int id = target.getSelectedRow();
-        if (e.getClickCount() == 1) {
-            
 
-        } else if (e.getClickCount() == 2) {
+        //melyik oldalon van a fókusz
+        EFile oldal;
+        boolean hidden;
+        if (target == listaBal) {
+            focus = false;
+            oldal = bal;
+            hidden = balHidden;
+        } else {
+            oldal = jobb;
+            focus = true;
+            hidden = jobbHidden;
+        }
 
+        String uj = oldal.getFile().getAbsolutePath();
+        if (id == 0) {
+            uj = oldal.getFile().getParent();
+        } else if (id > 0) {
+            uj = oldal.getFile().getAbsolutePath() +
+                    File.separator + target.getValueAt(id, 0);
+        }
+
+        File temp = oldal.getFile();
+        try {
+            temp = new File(uj);
+        } catch (NullPointerException exc) {
+            //már root voltunk, nincs parent
+        }
+
+        if (temp.isDirectory()) {
+            if (temp.canExecute()) {
+                listDir(focus,new EFile(temp),hidden);
+            } else {
+                JOptionPane.showMessageDialog(mainPanel, "Nincs jogosultságod megnyitni!");
+            }
         }
     }
 
     public void listDir(boolean hova, EFile mit, boolean hidden) {
         EntryAttributes[] ea = mit.getContent(hidden);
-        JTable target = listaBal;
-        bal = ea;
+        JTable target;
         if (hova) {
             target = listaJobb;
-            jobb = ea;
+            jobb = mit;
+        } else {
+            target = listaBal;
+            bal = mit;
         }
         DefaultTableModel dtm = (DefaultTableModel)target.getModel();
         dtm.getDataVector().removeAllElements();
-        Object[][] tomb = new Object[ea.length][5];
-        int i = 0;
+        Object[][] tomb = new Object[ea.length+1][5];
+        tomb[0][0] = "..";
+        for (int j=1; j<5; j++) {tomb[0][j] = ""; }
+        int i = 1;
         for (EntryAttributes e : ea) {
             tomb[i][0] = e.getName();
             tomb[i][1] = e.getExt();
@@ -59,22 +99,24 @@ public class TGcommanderView extends FrameView implements MouseListener {
             tomb,
             new String [] {
                 "Név", "Kiterjesztés", "Méret", "Utoljára módosítva", "Jogosultságok"
-            })
-        {
+            }
+        ) {
             boolean[] canEdit = new boolean [] {
-                true, false, false, false, false
+                false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
             }
         });
+    }
 
-        target.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-        panelBal.setViewportView(listaBal);
-
-       
-
+    public void refresh() {
+        JOptionPane.showMessageDialog(menuBar, "REFRESSS");
+        bal = new EFile(bal.getFile());
+        listDir(false,bal,balHidden);
+        jobb = new EFile(jobb.getFile());
+        listDir(true,jobb,jobbHidden);
     }
 
     public void mousePressed(MouseEvent e){}
@@ -144,6 +186,8 @@ public class TGcommanderView extends FrameView implements MouseListener {
         //custom initialize
         listDir(false,new EFile(new File("/bin")),true);
         listDir(true,new EFile(new File("/bin")),true);
+        listaBal.addMouseListener(this);
+        listaJobb.addMouseListener(this);
         
     }
 
@@ -632,6 +676,45 @@ public class TGcommanderView extends FrameView implements MouseListener {
 
     @Action
     public void masolas() {
+        EFile oldal = bal;
+        EFile masik = jobb;
+        JTable t = listaBal;
+        if (focus) {
+            oldal = jobb;
+            masik = bal;
+            t = listaJobb;
+        }
+        if (t.getSelectedRowCount() == 0) {
+            JOptionPane.showMessageDialog(t, "Nincs kijelölt file!");
+        }
+        int[] rows = t.getSelectedRows();
+        for (int i : rows) {
+
+            String filenev = File.separator + t.getValueAt(i, 0);
+            if (t.getValueAt(i,1) != "") {
+                filenev += "."+t.getValueAt(i, 1);
+            }
+
+            EFile ef = new EFile(new File(oldal.getFile().getAbsolutePath() + filenev));
+            File dest = new File(masik.getFile().getAbsolutePath() + filenev);
+            try {
+                ef.copyEntry(dest, false);
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(t, e.getMessage());
+            } catch (OverwritingException e) {
+                int optionType = JOptionPane.YES_NO_CANCEL_OPTION;
+                int res = JOptionPane.showConfirmDialog(null, "A file már létezik! Felülírod?",
+                        "Létező file", optionType);
+                if (res == JOptionPane.YES_OPTION) {
+                    try {
+                        ef.copyEntry(dest, true);
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(t, e.getMessage());
+                    }
+                }
+            }
+        }
+        refresh();
     }
 
     @Action
