@@ -39,7 +39,7 @@ public class TGcommanderView extends FrameView implements MouseListener {
 
         JTable target = (JTable)e.getSource();
         int selection = target.getSelectedRow();
-        if ((target == listaBal && focus) || (target == listaJobb && !focus)) {
+        if ((target == balLista && focus) || (target == jobbLista && !focus)) {
             new ChangeFocusAction().actionPerformed(null);
             target.getSelectionModel().setSelectionInterval(selection, selection);
         }
@@ -94,13 +94,12 @@ public class TGcommanderView extends FrameView implements MouseListener {
         JTable target;
 
         if (hova) {
-            target = listaJobb;
+            target = jobbLista;
             holVoltJobb = 0;
             jobb = mit;
         } else {
-            target = listaBal;
+            target = balLista;
             holVoltBal = 0;
->>>>>>> zealot_temp
             bal = mit;
         }
         DefaultTableModel dtm = (DefaultTableModel)target.getModel();
@@ -143,18 +142,46 @@ public class TGcommanderView extends FrameView implements MouseListener {
         column.setPreferredWidth(100);
         column = target.getColumnModel().getColumn(4);
         column.setPreferredWidth(30);
-        
+        if (focus == hova) {
+            target.getSelectionModel().setSelectionInterval(0, 0);
+        }
     }
+
+    public void __dump(String m) {
+        String msg = m + "\n\njobb: "+ jobb.getFile().getAbsolutePath()
+                + "\nbal: "+ bal.getFile().getAbsolutePath()
+                + "\nfocus: "+focus;
+        JOptionPane.showMessageDialog(menuBar, msg);
+    }
+
     public void refresh() {
-        JOptionPane.showMessageDialog(menuBar, "REFRESSS");
-        int id = listaBal.getSelectedRow();
-        bal = new EFile(bal.getFile());
-        listDir(false,bal,balHidden);
-        listaBal.getSelectionModel().setSelectionInterval(id, id);
-        id = listaJobb.getSelectedRow();
-        jobb = new EFile(jobb.getFile());
-        listDir(true,jobb,jobbHidden);
-        listaJobb.getSelectionModel().setSelectionInterval(id, id);
+        int id;
+        if (focus) {
+            id = jobbLista.getSelectedRow();
+        } else {
+            id = balLista.getSelectedRow();
+        }
+        try {
+            bal = new EFile(bal.getFile());
+            listDir(false,bal,balHidden);
+        } catch (NullPointerException ex) {
+            bal = new EFile(new File("/"));
+            listDir(false,bal,balHidden);
+        }
+        try {
+            jobb = new EFile(jobb.getFile());
+            listDir(true,jobb,jobbHidden);
+        } catch (NullPointerException ex) {
+            jobb = new EFile(new File("/"));
+            listDir(true,jobb,jobbHidden);
+        }
+        if (focus) {
+            jobbLista.getSelectionModel().setSelectionInterval(id, id);
+            balLista.clearSelection();
+        } else {
+            jobbLista.clearSelection();
+            balLista.getSelectionModel().setSelectionInterval(id, id);
+        }
     }
 
     public void mousePressed(MouseEvent e){}
@@ -172,16 +199,16 @@ public class TGcommanderView extends FrameView implements MouseListener {
     class ChangeFocusAction extends AbstractAction {
         public void actionPerformed(ActionEvent e) {
             if (focus) {
-                listaBal.requestFocus();
-                listaBal.getSelectionModel().setSelectionInterval(holVoltBal, holVoltBal);
-                holVoltJobb = listaJobb.getSelectedRow();
-                listaJobb.clearSelection();
+                balLista.requestFocus();
+                balLista.getSelectionModel().setSelectionInterval(holVoltBal, holVoltBal);
+                holVoltJobb = jobbLista.getSelectedRow();
+                jobbLista.clearSelection();
                 focus = false;
             } else {
-                listaJobb.requestFocus();
-                listaJobb.getSelectionModel().setSelectionInterval(holVoltJobb, holVoltJobb);
-                holVoltBal = listaBal.getSelectedRow();
-                listaBal.clearSelection();
+                jobbLista.requestFocus();
+                jobbLista.getSelectionModel().setSelectionInterval(holVoltJobb, holVoltJobb);
+                holVoltBal = balLista.getSelectedRow();
+                balLista.clearSelection();
                 focus = true;
             }
         }
@@ -248,10 +275,10 @@ public class TGcommanderView extends FrameView implements MouseListener {
         });
 
         //custom initialize
-        listDir(false,new EFile(new File("D:/")),true);
-        listDir(true,new EFile(new File("D:/")),true);
-        balKonyvtar.setText("D:/");
-        jobbKonyvtar.setText("D:/");
+        listDir(false,new EFile(new File("/")),true);
+        listDir(true,new EFile(new File("/")),true);
+        balKonyvtar.setText("/");
+        jobbKonyvtar.setText("/");
         balLista.addMouseListener(this);
         jobbLista.addMouseListener(this);
 
@@ -707,7 +734,7 @@ public class TGcommanderView extends FrameView implements MouseListener {
                 JOptionPane.showMessageDialog(t, e.getMessage());
             } catch (OverwritingException e) {
                 int optionType = JOptionPane.YES_NO_CANCEL_OPTION;
-                int res = JOptionPane.showConfirmDialog(null, "A file már létezik! Felülírod?",
+                int res = JOptionPane.showConfirmDialog(null, "A file már létezik: "+dest.getAbsolutePath()+"! Felülírod?",
                         "Létező file", optionType);
                 if (res == JOptionPane.YES_OPTION) {
                     try {
@@ -744,9 +771,9 @@ public class TGcommanderView extends FrameView implements MouseListener {
 
     @Action
     public void torles() {
-        JTable t = listaBal;
+        JTable t = balLista;
         if (focus) {
-            t = listaJobb;
+            t = jobbLista;
         }
         if (t.getSelectedRowCount() == 0) {
             JOptionPane.showMessageDialog(t, "Nincs kijelölt file!");
