@@ -28,30 +28,36 @@ public class TGcommanderView extends FrameView implements MouseListener {
 
     public void mouseClicked(MouseEvent e){
 
-        //melyik oldalra kattintottak
-        JTable target = (JTable)e.getSource();
-        //melyik sorra
-        int id = target.getSelectedRow();
-
-        //melyik oldalon van a fókusz
-        EFile oldal;
-        boolean hidden;
-        if (target == listaBal) {
-            focus = false;
-            oldal = bal;
-            hidden = balHidden;
-        } else {
-            oldal = jobb;
-            focus = true;
-            hidden = jobbHidden;
+        if (e.getClickCount() == 2) {
+            //melyik oldalra kattintottak
+            JTable target = (JTable)e.getSource();
+            if ((target == listaBal && focus) || (target == listaJobb && !focus)) {
+                new ChangeFocusAction().actionPerformed(null);
+            }
+            listazasAction();
         }
+    }
 
+    public void listazasAction() {
+        JTable t = null;
+        EFile oldal = null;
+        boolean hidden;
+        if (focus) {
+            oldal = jobb;
+            t = listaJobb;
+            hidden = jobbHidden;
+        } else {
+            oldal = bal;
+            t = listaBal;
+            hidden = balHidden;
+        }
+        int id = t.getSelectedRow();
         String uj = oldal.getFile().getAbsolutePath();
         if (id == 0) {
             uj = oldal.getFile().getParent();
         } else if (id > 0) {
             uj = oldal.getFile().getAbsolutePath() +
-                    File.separator + target.getValueAt(id, 0);
+                    File.separator + t.getValueAt(id, 0);
         }
 
         File temp = oldal.getFile();
@@ -124,6 +130,28 @@ public class TGcommanderView extends FrameView implements MouseListener {
     public void mouseEntered(MouseEvent e){}
     public void mouseExited(MouseEvent e){}
 
+
+    class ListazasAction extends AbstractAction {
+        public void actionPerformed(ActionEvent e) {
+            listazasAction();
+        }
+    }
+
+    class ChangeFocusAction extends AbstractAction {
+        public void actionPerformed(ActionEvent e) {
+            if (focus) {
+                listaBal.requestFocus();
+                listaJobb.clearSelection();
+                focus = false;
+            } else {
+                listaJobb.requestFocus();
+                listaBal.clearSelection();
+                focus = true;
+            }
+        }
+    }
+
+
     public TGcommanderView(SingleFrameApplication app) {
         super(app);
 
@@ -188,6 +216,20 @@ public class TGcommanderView extends FrameView implements MouseListener {
         listDir(true,new EFile(new File("/bin")),true);
         listaBal.addMouseListener(this);
         listaJobb.addMouseListener(this);
+
+
+        KeyStroke enter = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
+        KeyStroke tab = KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0);
+        listaBal.getActionMap().put("listazas", new ListazasAction());
+        listaBal.getInputMap(JTable.WHEN_FOCUSED).put(enter, "listazas");
+        listaJobb.getActionMap().put("listazas", new ListazasAction());
+        listaJobb.getInputMap(JTable.WHEN_FOCUSED).put(enter, "listazas");
+        listaBal.getActionMap().put("changefocus", new ChangeFocusAction());
+        listaBal.getInputMap(JTable.WHEN_FOCUSED).put(tab, "changefocus");
+        listaJobb.getActionMap().put("changefocus", new ChangeFocusAction());
+        listaJobb.getInputMap(JTable.WHEN_FOCUSED).put(tab, "changefocus");
+
+        listaBal.requestFocus();
         
     }
 
@@ -674,6 +716,30 @@ public class TGcommanderView extends FrameView implements MouseListener {
         szabadHelyPane.setDividerLocation(panelek.getDividerLocation());
     }//GEN-LAST:event_panelekPropertyChange
 
+    public EFile genEFile(boolean side, int index, boolean source) throws Exception {
+        JTable t = null;
+        EFile parent = null;
+        EFile masik = null;
+        if (side) {
+            t = listaJobb;
+            parent = jobb;
+            masik = bal;
+        } else {
+            t = listaBal;
+            parent = bal;
+            masik = jobb;
+        }
+        String nev = parent.getFile().getAbsolutePath() + File.separator;
+        if (!source) {
+            nev = masik.getFile().getAbsolutePath() + File.separator;
+        }
+        nev += t.getValueAt(index, 0);
+        if (t.getValueAt(index, 1) == "") {
+            nev += t.getValueAt(index, 1);
+        }
+        return new EFile(new File(nev));
+    }
+
     @Action
     public void masolas() {
         EFile oldal = bal;
@@ -686,19 +752,23 @@ public class TGcommanderView extends FrameView implements MouseListener {
         }
         if (t.getSelectedRowCount() == 0) {
             JOptionPane.showMessageDialog(t, "Nincs kijelölt file!");
+            return;
         }
         int[] rows = t.getSelectedRows();
         for (int i : rows) {
-
-            String filenev = File.separator + t.getValueAt(i, 0);
-            if (t.getValueAt(i,1) != "") {
-                filenev += "."+t.getValueAt(i, 1);
+           
+            EFile source = null;
+            File dest = null;
+            try {
+                source = genEFile(focus,i,true);
+                dest = genEFile(focus,i,false).getFile();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(t, "A forrás vagy a cél file nem létezik!");
+                return;
             }
 
-            EFile ef = new EFile(new File(oldal.getFile().getAbsolutePath() + filenev));
-            File dest = new File(masik.getFile().getAbsolutePath() + filenev);
             try {
-                ef.copyEntry(dest, false);
+                source.copyEntry(dest, false);
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(t, e.getMessage());
             } catch (OverwritingException e) {
@@ -707,7 +777,7 @@ public class TGcommanderView extends FrameView implements MouseListener {
                         "Létező file", optionType);
                 if (res == JOptionPane.YES_OPTION) {
                     try {
-                        ef.copyEntry(dest, true);
+                        source.copyEntry(dest, true);
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(t, e.getMessage());
                     }
@@ -719,10 +789,16 @@ public class TGcommanderView extends FrameView implements MouseListener {
 
     @Action
     public void athelyezes() {
+        JOptionPane.showMessageDialog(menuBar, "SZEVASZ BAZZE");
     }
 
     @Action
     public void ujKonyvtar() {
+        //id
+        String msg = "bal: "+bal.getFile().getAbsolutePath() + "\n"
+                + "jobb: " + jobb.getFile().getAbsolutePath() + "\n"
+                + "focus: " + focus;
+        JOptionPane.showMessageDialog(menuBar, msg);
     }
 
     @Action
