@@ -20,20 +20,31 @@ import java.io.*;
  */
 public class TGcommanderView extends FrameView implements MouseListener {
 
+    //az oldal tartalma
     private EFile bal;
     private EFile jobb;
+
+    //melyik oldalon van a fókusz
     private boolean focus = false;
+
+    //jelenjenek-e meg a rejtett file-ok
     private boolean balHidden = false;
     private boolean jobbHidden = false;
 
+    //hol volt
+    private int holVoltBal;
+    private int holVoltJobb;
+
     public void mouseClicked(MouseEvent e){
 
+        JTable target = (JTable)e.getSource();
+        int selection = target.getSelectedRow();
+        if ((target == listaBal && focus) || (target == listaJobb && !focus)) {
+            new ChangeFocusAction().actionPerformed(null);
+            target.getSelectionModel().setSelectionInterval(selection, selection);
+        }
+
         if (e.getClickCount() == 2) {
-            //melyik oldalra kattintottak
-            JTable target = (JTable)e.getSource();
-            if ((target == balLista && focus) || (target == jobbLista && !focus)) {
-                new ChangeFocusAction().actionPerformed(null);
-            }
             listazasAction();
         }
     }
@@ -81,11 +92,15 @@ public class TGcommanderView extends FrameView implements MouseListener {
     public void listDir(boolean hova, EFile mit, boolean hidden) {
         EntryAttributes[] ea = mit.getContent(hidden);
         JTable target;
+
         if (hova) {
-            target = jobbLista;
+            target = listaJobb;
+            holVoltJobb = 0;
             jobb = mit;
         } else {
-            target = balLista;
+            target = listaBal;
+            holVoltBal = 0;
+>>>>>>> zealot_temp
             bal = mit;
         }
         DefaultTableModel dtm = (DefaultTableModel)target.getModel();
@@ -132,10 +147,14 @@ public class TGcommanderView extends FrameView implements MouseListener {
     }
     public void refresh() {
         JOptionPane.showMessageDialog(menuBar, "REFRESSS");
+        int id = listaBal.getSelectedRow();
         bal = new EFile(bal.getFile());
         listDir(false,bal,balHidden);
+        listaBal.getSelectionModel().setSelectionInterval(id, id);
+        id = listaJobb.getSelectedRow();
         jobb = new EFile(jobb.getFile());
         listDir(true,jobb,jobbHidden);
+        listaJobb.getSelectionModel().setSelectionInterval(id, id);
     }
 
     public void mousePressed(MouseEvent e){}
@@ -153,12 +172,16 @@ public class TGcommanderView extends FrameView implements MouseListener {
     class ChangeFocusAction extends AbstractAction {
         public void actionPerformed(ActionEvent e) {
             if (focus) {
-                balLista.requestFocus();
-                jobbLista.clearSelection();
+                listaBal.requestFocus();
+                listaBal.getSelectionModel().setSelectionInterval(holVoltBal, holVoltBal);
+                holVoltJobb = listaJobb.getSelectedRow();
+                listaJobb.clearSelection();
                 focus = false;
             } else {
-                jobbLista.requestFocus();
-                balLista.clearSelection();
+                listaJobb.requestFocus();
+                listaJobb.getSelectionModel().setSelectionInterval(holVoltJobb, holVoltJobb);
+                holVoltBal = listaBal.getSelectedRow();
+                listaBal.clearSelection();
                 focus = true;
             }
         }
@@ -644,9 +667,10 @@ public class TGcommanderView extends FrameView implements MouseListener {
             nev = masik.getFile().getAbsolutePath() + File.separator;
         }
         nev += t.getValueAt(index, 0);
-        if (t.getValueAt(index, 1) == "") {
-            nev += t.getValueAt(index, 1);
+        if (t.getValueAt(index, 1) != "") {
+            nev += "." + t.getValueAt(index, 1);
         }
+        JOptionPane.showMessageDialog(t, nev);
         return new EFile(new File(nev));
     }
 
@@ -699,20 +723,53 @@ public class TGcommanderView extends FrameView implements MouseListener {
 
     @Action
     public void athelyezes() {
-        JOptionPane.showMessageDialog(menuBar, "SZEVASZ BAZZE");
+        masolas();
+        torles();
     }
 
     @Action
     public void ujKonyvtar() {
-        //id
-        String msg = "bal: "+bal.getFile().getAbsolutePath() + "\n"
-                + "jobb: " + jobb.getFile().getAbsolutePath() + "\n"
-                + "focus: " + focus;
-        JOptionPane.showMessageDialog(menuBar, msg);
+        EFile oldal = bal;
+        if (focus) {
+            oldal = jobb;
+        }
+        String ret = JOptionPane.showInputDialog(menuBar, "Új könyvtár itt: "+oldal.getFile().getAbsolutePath(), "");
+        try {
+            new File(oldal.getFile().getAbsolutePath()+File.separator+ret).mkdir();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(menuBar, "A könyvtár létrehozása nem sikerült!");
+        }
+        refresh();
     }
 
     @Action
     public void torles() {
+        JTable t = listaBal;
+        if (focus) {
+            t = listaJobb;
+        }
+        if (t.getSelectedRowCount() == 0) {
+            JOptionPane.showMessageDialog(t, "Nincs kijelölt file!");
+            return;
+        }
+        int[] rows = t.getSelectedRows();
+        for (int i : rows) {
+
+            EFile source = null;
+            try {
+                source = genEFile(focus,i,true);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(t, "A forrásfile nem létezik!");
+                return;
+            }
+
+            try {
+                source.deleteEntry();
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(t, e.getMessage());
+            }
+        }
+        refresh();
     }
 
     @Action
