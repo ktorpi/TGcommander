@@ -9,10 +9,12 @@ import java.io.IOException;
  */
 public class Main {
     public static void main(String[] args) throws Exception {
-        File file1 = new File(args[0]);
+       /* File file1 = new File(args[0]);
         File file2 = new File(args[1]);
-        EFile wrapper = new EFile(file1);
+        EFile wrapper = new EFile(file1);*/
 
-        wrapper.renameEntry(file2);
+        System.out.println(EntryAttributes.formatSize(345435));
+
+        // wrapper.renameEntry(file2);
     }
 }

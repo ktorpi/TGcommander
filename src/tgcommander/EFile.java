@@ -7,7 +7,6 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Arrays;
 
-import javax.swing.*;
 
 /**
  * Egy File típusú objektumot becsomagoló osztály, ami
@@ -19,13 +18,6 @@ public class EFile {
 
     /** A becsomagolt File. */
     private File file;
-
-    /**
-     * getter a file-hoz
-     */
-    public File getFile() {
-        return this.file;
-    }
 
     /**
      * Ha a bejegyzés könyvtár ez az adattag tárolja a benen lévő
@@ -81,7 +73,10 @@ public class EFile {
      * Fájl esetén ebbe az új fájba kerül a másolandó fáj tartalma, ha
      * pedig könyvtárról van szó, akkor a forráskönyvtár alatti bejegyzések
      * másolódnak a dest alá.
+     * @param forced Ha ture és már létezik a célfájl, nem kérdezünk, hanem felülírjuk.
+     * 
      * @throws IOException Hiba lépett fel a másolás közben.
+     * @throws OverwritingException Már létezika  célfájl.
      */
     public void copyEntry(File dest, boolean forced) throws IOException, OverwritingException {
         // a forrás rendben van-e?
@@ -178,6 +173,16 @@ public class EFile {
             System.err.println(e.getMessage());
         }
     }
+
+
+    /**
+     * Getter a file-hoz.
+     * @return A file mező.
+     */
+    public File getFile() {
+        return this.file;
+    }
+
 
     /**
      * A becsomagolt file tartalmának visszadása.

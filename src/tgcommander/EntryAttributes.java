@@ -51,7 +51,7 @@ public class EntryAttributes implements Comparable<EntryAttributes> {
 
     /** A bejegyzés méreteinek lehetséges mértékegységei. */
     private enum unit {
-        B, KB, MB, GB, TB, PB, EB
+        B, KB, MB, GB, TB
     }
 
     /**
@@ -59,10 +59,11 @@ public class EntryAttributes implements Comparable<EntryAttributes> {
      * @param size A formázandó méret bájtokban.
      * @return A formázott méret.
      */
-    private String formatSize(long length) {
+    public static String formatSize(long length) {
         int i = 0;
         double s = (double)length;
-        while (s >= 1024 && i <= unit.EB.ordinal()) {
+        
+        while (s >= 1024 && i <= unit.TB.ordinal()) {
             s /= 1024.0;
             i++;
         }
