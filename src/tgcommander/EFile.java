@@ -153,8 +153,8 @@ public class EFile {
      * @param dest Amire át akarjuk nevezni, ahova átakarjuk helyezni.
      * @throws IOException Sikertelen átnevezés/áthelyezés
      */
-    public void renameEntry(File dest) throws IOException {
-        try {
+    public void renameEntry(File dest) throws IOException, OverwritingException {
+        
             if (!dest.exists()) {
                 if (!file.renameTo(dest)) {             // ha nem sikerült átnevezéssel, akkor másolás-törlés
                     copyEntry(dest, false);
@@ -166,12 +166,7 @@ public class EFile {
             } else {
                 throw new OverwritingException("Már létezik: " + dest.getAbsolutePath());
             }
-        } catch (OverwritingException e) {
-            /*
-             * TODO: Valahol itt is kéne akkor egy ablakot földöbni.
-             */
-            System.err.println(e.getMessage());
-        }
+        
     }
 
 
