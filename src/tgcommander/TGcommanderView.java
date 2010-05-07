@@ -756,12 +756,17 @@ public class TGcommanderView extends FrameView implements MouseListener {
         if (t.getValueAt(index, 1) != "") {
             nev += "." + t.getValueAt(index, 1);
         }
-        JOptionPane.showMessageDialog(t, nev);
         return new EFile(new File(nev));
+    }
+
+    public void saveSelections() {
+        holVoltBal = balLista.getSelectedRow();
+        holVoltJobb = jobbLista.getSelectedRow();
     }
 
     @Action
     public void masolas() {
+        saveSelections();
         EFile oldal = bal;
         EFile masik = jobb;
         JTable t = balLista;
@@ -827,7 +832,6 @@ public class TGcommanderView extends FrameView implements MouseListener {
                     }
                 }
             }
-        refresh();
         return null;
         }
 
@@ -840,7 +844,13 @@ public class TGcommanderView extends FrameView implements MouseListener {
             jobbLista.setBackground(java.awt.Color.white);
             progressBar.setIndeterminate(false);            //progressbar eltüntetése
             progressBar.setVisible(false);
-            
+
+            refresh();
+            if (focus) {
+                jobbLista.requestFocus();
+            } else {
+                balLista.requestFocus();
+            }
         }
     }
 
@@ -859,6 +869,9 @@ public class TGcommanderView extends FrameView implements MouseListener {
             oldal = jobb;
         }
         String ret = JOptionPane.showInputDialog(menuBar, "Új könyvtár itt: "+oldal.getFile().getAbsolutePath(), "");
+        if (ret == null || ret.equals("")) {
+            return;
+        }
         try {
             new File(oldal.getFile().getAbsolutePath()+File.separator+ret).mkdir();
         } catch (Exception e) {
@@ -906,9 +919,13 @@ public class TGcommanderView extends FrameView implements MouseListener {
 
     @Action
     public void szuloKonyvtar() {                                           //egyelőre ott lép vissza a szülőkönyvtárba, ahol a fókusz van
-        listDir(focus,new EFile((focus?jobb:bal).getFile().getParentFile()),showHidden);    //szülőkönyvtár listázása
-        if (focus) {jobbKonyvtar.setText(jobb.getFile().getAbsolutePath());                 //könyvtárjelző címke beállítása
-        } else {balKonyvtar.setText(bal.getFile().getAbsolutePath());}
+        try {
+            listDir(focus,new EFile((focus?jobb:bal).getFile().getParentFile()),showHidden);    //szülőkönyvtár listázása
+            if (focus) {jobbKonyvtar.setText(jobb.getFile().getAbsolutePath());                 //könyvtárjelző címke beállítása
+            } else {balKonyvtar.setText(bal.getFile().getAbsolutePath());}
+        } catch (NullPointerException ex) {
+            //már root voltunk
+        }
     }
 
     @Action
