@@ -28,8 +28,7 @@ public class TGcommanderView extends FrameView implements MouseListener {
     private boolean focus = false;
 
     //jelenjenek-e meg a rejtett file-ok
-    private boolean balHidden = false;
-    private boolean jobbHidden = false;
+    private boolean showHidden = false;
 
     //hol volt
     private int holVoltBal;
@@ -52,15 +51,12 @@ public class TGcommanderView extends FrameView implements MouseListener {
     public void listazasAction() {
         JTable t = null;
         EFile oldal = null;
-        boolean hidden;
         if (focus) {
             oldal = jobb;
             t = jobbLista;
-            hidden = jobbHidden;
         } else {
             oldal = bal;
             t = balLista;
-            hidden = balHidden;
         }
         int id = t.getSelectedRow();
         String uj = oldal.getFile().getAbsolutePath();
@@ -80,7 +76,7 @@ public class TGcommanderView extends FrameView implements MouseListener {
 
         if (temp.isDirectory()) {
             if (temp.canExecute()) {
-                listDir(focus,new EFile(temp),hidden);
+                listDir(focus,new EFile(temp),showHidden);
                 if (focus) {jobbKonyvtar.setText(uj);}
                 else {balKonyvtar.setText(uj);}
             } else {
@@ -163,17 +159,17 @@ public class TGcommanderView extends FrameView implements MouseListener {
         }
         try {
             bal = new EFile(bal.getFile());
-            listDir(false,bal,balHidden);
+            listDir(false,bal,showHidden);
         } catch (NullPointerException ex) {
             bal = new EFile(new File("/"));
-            listDir(false,bal,balHidden);
+            listDir(false,bal,showHidden);
         }
         try {
             jobb = new EFile(jobb.getFile());
-            listDir(true,jobb,jobbHidden);
+            listDir(true,jobb,showHidden);
         } catch (NullPointerException ex) {
             jobb = new EFile(new File("/"));
-            listDir(true,jobb,jobbHidden);
+            listDir(true,jobb,showHidden);
         }
         if (focus) {
             jobbLista.getSelectionModel().setSelectionInterval(id, id);
@@ -275,8 +271,8 @@ public class TGcommanderView extends FrameView implements MouseListener {
         });
 
         //custom initialize
-        listDir(false,new EFile(new File("/")),true);
-        listDir(true,new EFile(new File("/")),true);
+        listDir(false,new EFile(new File("/")),showHidden);
+        listDir(true,new EFile(new File("/")),showHidden);
         balKonyvtar.setText("/");
         jobbKonyvtar.setText("/");
         balLista.addMouseListener(this);
@@ -321,6 +317,7 @@ public class TGcommanderView extends FrameView implements MouseListener {
 
         mainPanel = new javax.swing.JPanel();
         eszkoztar = new javax.swing.JToolBar();
+        kilepesGomb1 = new javax.swing.JButton();
         torlesGomb1 = new javax.swing.JButton();
         athelyezesGomb = new javax.swing.JButton();
         ujKonyvtarGomb = new javax.swing.JButton();
@@ -332,21 +329,26 @@ public class TGcommanderView extends FrameView implements MouseListener {
         balLista = new javax.swing.JTable();
         balFelsoPanel = new javax.swing.JPanel();
         balKonyvtar = new javax.swing.JLabel();
+        balGyokerGomb = new javax.swing.JButton();
+        balSzuloGomb = new javax.swing.JButton();
         jobbPanel = new javax.swing.JPanel();
         jobbScrollPane = new javax.swing.JScrollPane(balLista);
         jobbLista = new javax.swing.JTable();
         jobbFelsoPanel = new javax.swing.JPanel();
         jobbKonyvtar = new javax.swing.JLabel();
+        jobbGyokerGomb = new javax.swing.JButton();
+        jobbSzuloGomb = new javax.swing.JButton();
         menuBar = new javax.swing.JMenuBar();
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
+        atnevezesMenuItem = new javax.swing.JMenuItem();
         masolasMenuItem = new javax.swing.JMenuItem();
         athelyezesMenuItem = new javax.swing.JMenuItem();
         ujKonyvtarMenuItem = new javax.swing.JMenuItem();
         torlesMenuItem = new javax.swing.JMenuItem();
         elvalaszto1 = new javax.swing.JPopupMenu.Separator();
-        javax.swing.JMenuItem exitMenuItem = new javax.swing.JMenuItem();
+        javax.swing.JMenuItem kilepesMenuItem = new javax.swing.JMenuItem();
         nezetMenu = new javax.swing.JMenu();
-        rejtettFajlMenupont = new javax.swing.JCheckBoxMenuItem();
+        rejtettFajlMenuItem = new javax.swing.JCheckBoxMenuItem();
         javax.swing.JMenu helpMenu = new javax.swing.JMenu();
         javax.swing.JMenuItem aboutMenuItem = new javax.swing.JMenuItem();
         statusPanel = new javax.swing.JPanel();
@@ -367,8 +369,20 @@ public class TGcommanderView extends FrameView implements MouseListener {
         eszkoztar.setPreferredSize(new java.awt.Dimension(300, 25));
 
         javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(tgcommander.TGcommanderApp.class).getContext().getActionMap(TGcommanderView.class, this);
-        torlesGomb1.setAction(actionMap.get("masolas")); // NOI18N
+        kilepesGomb1.setAction(actionMap.get("atnevezes")); // NOI18N
         org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(tgcommander.TGcommanderApp.class).getContext().getResourceMap(TGcommanderView.class);
+        kilepesGomb1.setText(resourceMap.getString("kilepesGomb1.text")); // NOI18N
+        kilepesGomb1.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        kilepesGomb1.setFocusable(false);
+        kilepesGomb1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        kilepesGomb1.setMaximumSize(new java.awt.Dimension(90, 25));
+        kilepesGomb1.setMinimumSize(new java.awt.Dimension(90, 25));
+        kilepesGomb1.setName("kilepesGomb1"); // NOI18N
+        kilepesGomb1.setPreferredSize(new java.awt.Dimension(90, 25));
+        kilepesGomb1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        eszkoztar.add(kilepesGomb1);
+
+        torlesGomb1.setAction(actionMap.get("masolas")); // NOI18N
         torlesGomb1.setText(resourceMap.getString("torlesGomb1.text")); // NOI18N
         torlesGomb1.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         torlesGomb1.setFocusable(false);
@@ -423,7 +437,7 @@ public class TGcommanderView extends FrameView implements MouseListener {
         kilepesGomb.setPreferredSize(new java.awt.Dimension(90, 25));
         eszkoztar.add(kilepesGomb);
 
-        panelek.setDividerLocation(300);
+        panelek.setDividerLocation(400);
         panelek.setResizeWeight(0.5);
         panelek.setMinimumSize(new java.awt.Dimension(400, 200));
         panelek.setName("panelek"); // NOI18N
@@ -456,18 +470,38 @@ public class TGcommanderView extends FrameView implements MouseListener {
         balKonyvtar.setText(resourceMap.getString("balKonyvtar.text")); // NOI18N
         balKonyvtar.setName("balKonyvtar"); // NOI18N
 
+        balGyokerGomb.setAction(actionMap.get("gyokerkonyvtar")); // NOI18N
+        balGyokerGomb.setText(resourceMap.getString("balGyokerGomb.text")); // NOI18N
+        balGyokerGomb.setMargin(new java.awt.Insets(2, 2, 2, 2));
+        balGyokerGomb.setMaximumSize(new java.awt.Dimension(17, 23));
+        balGyokerGomb.setMinimumSize(new java.awt.Dimension(17, 23));
+        balGyokerGomb.setName("balGyokerGomb"); // NOI18N
+        balGyokerGomb.setPreferredSize(new java.awt.Dimension(17, 23));
+
+        balSzuloGomb.setAction(actionMap.get("szuloKonyvtar")); // NOI18N
+        balSzuloGomb.setText(resourceMap.getString("balSzuloGomb.text")); // NOI18N
+        balSzuloGomb.setMargin(new java.awt.Insets(2, 2, 2, 2));
+        balSzuloGomb.setName("balSzuloGomb"); // NOI18N
+
         javax.swing.GroupLayout balFelsoPanelLayout = new javax.swing.GroupLayout(balFelsoPanel);
         balFelsoPanel.setLayout(balFelsoPanelLayout);
         balFelsoPanelLayout.setHorizontalGroup(
             balFelsoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(balFelsoPanelLayout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, balFelsoPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(balKonyvtar, javax.swing.GroupLayout.DEFAULT_SIZE, 422, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(balKonyvtar, javax.swing.GroupLayout.DEFAULT_SIZE, 382, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(balGyokerGomb, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(4, 4, 4)
+                .addComponent(balSzuloGomb, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(11, 11, 11))
         );
         balFelsoPanelLayout.setVerticalGroup(
             balFelsoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(balKonyvtar, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
+            .addGroup(balFelsoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addComponent(balKonyvtar, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
+                .addComponent(balSzuloGomb)
+                .addComponent(balGyokerGomb, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         javax.swing.GroupLayout balPanelLayout = new javax.swing.GroupLayout(balPanel);
@@ -476,7 +510,7 @@ public class TGcommanderView extends FrameView implements MouseListener {
             balPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(balFelsoPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(balPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addComponent(balScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 442, Short.MAX_VALUE))
+                .addComponent(balScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 457, Short.MAX_VALUE))
         );
         balPanelLayout.setVerticalGroup(
             balPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -519,18 +553,36 @@ public class TGcommanderView extends FrameView implements MouseListener {
         jobbKonyvtar.setText(resourceMap.getString("jobbKonyvtar.text")); // NOI18N
         jobbKonyvtar.setName("jobbKonyvtar"); // NOI18N
 
+        jobbGyokerGomb.setAction(actionMap.get("gyokerkonyvtar")); // NOI18N
+        jobbGyokerGomb.setMargin(new java.awt.Insets(2, 2, 2, 2));
+        jobbGyokerGomb.setMaximumSize(new java.awt.Dimension(17, 23));
+        jobbGyokerGomb.setMinimumSize(new java.awt.Dimension(17, 23));
+        jobbGyokerGomb.setName("jobbGyokerGomb"); // NOI18N
+        jobbGyokerGomb.setPreferredSize(new java.awt.Dimension(17, 23));
+
+        jobbSzuloGomb.setAction(actionMap.get("szuloKonyvtar")); // NOI18N
+        jobbSzuloGomb.setMargin(new java.awt.Insets(2, 2, 2, 2));
+        jobbSzuloGomb.setName("jobbSzuloGomb"); // NOI18N
+
         javax.swing.GroupLayout jobbFelsoPanelLayout = new javax.swing.GroupLayout(jobbFelsoPanel);
         jobbFelsoPanel.setLayout(jobbFelsoPanelLayout);
         jobbFelsoPanelLayout.setHorizontalGroup(
             jobbFelsoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jobbFelsoPanelLayout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jobbFelsoPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jobbKonyvtar, javax.swing.GroupLayout.DEFAULT_SIZE, 261, Short.MAX_VALUE)
+                .addComponent(jobbKonyvtar, javax.swing.GroupLayout.DEFAULT_SIZE, 260, Short.MAX_VALUE)
+                .addGap(8, 8, 8)
+                .addComponent(jobbGyokerGomb, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jobbSzuloGomb, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         jobbFelsoPanelLayout.setVerticalGroup(
             jobbFelsoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jobbKonyvtar, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
+            .addGroup(jobbFelsoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addComponent(jobbKonyvtar, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
+                .addComponent(jobbSzuloGomb)
+                .addComponent(jobbGyokerGomb, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         javax.swing.GroupLayout jobbPanelLayout = new javax.swing.GroupLayout(jobbPanel);
@@ -539,7 +591,7 @@ public class TGcommanderView extends FrameView implements MouseListener {
             jobbPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jobbFelsoPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(jobbPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addComponent(jobbScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 281, Short.MAX_VALUE))
+                .addComponent(jobbScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 340, Short.MAX_VALUE))
         );
         jobbPanelLayout.setVerticalGroup(
             jobbPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -560,9 +612,9 @@ public class TGcommanderView extends FrameView implements MouseListener {
         mainPanelLayout.setHorizontalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(mainPanelLayout.createSequentialGroup()
-                .addComponent(eszkoztar, javax.swing.GroupLayout.DEFAULT_SIZE, 720, Short.MAX_VALUE)
+                .addComponent(eszkoztar, javax.swing.GroupLayout.DEFAULT_SIZE, 736, Short.MAX_VALUE)
                 .addContainerGap())
-            .addComponent(panelek, javax.swing.GroupLayout.DEFAULT_SIZE, 730, Short.MAX_VALUE)
+            .addComponent(panelek, javax.swing.GroupLayout.DEFAULT_SIZE, 746, Short.MAX_VALUE)
         );
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -579,6 +631,11 @@ public class TGcommanderView extends FrameView implements MouseListener {
 
         fileMenu.setText(resourceMap.getString("fileMenu.text")); // NOI18N
         fileMenu.setName("fileMenu"); // NOI18N
+
+        atnevezesMenuItem.setAction(actionMap.get("atnevezes")); // NOI18N
+        atnevezesMenuItem.setText(resourceMap.getString("atnevezesMenuItem.text")); // NOI18N
+        atnevezesMenuItem.setName("atnevezesMenuItem"); // NOI18N
+        fileMenu.add(atnevezesMenuItem);
 
         masolasMenuItem.setAction(actionMap.get("masolas")); // NOI18N
         masolasMenuItem.setText(resourceMap.getString("masolasMenuItem.text")); // NOI18N
@@ -606,20 +663,21 @@ public class TGcommanderView extends FrameView implements MouseListener {
         elvalaszto1.setVerifyInputWhenFocusTarget(false);
         fileMenu.add(elvalaszto1);
 
-        exitMenuItem.setAction(actionMap.get("quit")); // NOI18N
-        exitMenuItem.setText(resourceMap.getString("exitMenuItem.text")); // NOI18N
-        exitMenuItem.setName("exitMenuItem"); // NOI18N
-        fileMenu.add(exitMenuItem);
+        kilepesMenuItem.setAction(actionMap.get("quit")); // NOI18N
+        kilepesMenuItem.setText(resourceMap.getString("kilepesMenuItem.text")); // NOI18N
+        kilepesMenuItem.setName("kilepesMenuItem"); // NOI18N
+        fileMenu.add(kilepesMenuItem);
 
         menuBar.add(fileMenu);
 
+        nezetMenu.setAction(actionMap.get("rejtettFajlok")); // NOI18N
         nezetMenu.setText(resourceMap.getString("nezetMenu.text")); // NOI18N
         nezetMenu.setName("nezetMenu"); // NOI18N
 
-        rejtettFajlMenupont.setSelected(true);
-        rejtettFajlMenupont.setText(resourceMap.getString("rejtettFajlMenupont.text")); // NOI18N
-        rejtettFajlMenupont.setName("rejtettFajlMenupont"); // NOI18N
-        nezetMenu.add(rejtettFajlMenupont);
+        rejtettFajlMenuItem.setAction(actionMap.get("rejtettFajlok")); // NOI18N
+        rejtettFajlMenuItem.setText(resourceMap.getString("rejtettFajlMenuItem.text")); // NOI18N
+        rejtettFajlMenuItem.setName("rejtettFajlMenuItem"); // NOI18N
+        nezetMenu.add(rejtettFajlMenuItem);
 
         menuBar.add(nezetMenu);
 
@@ -642,21 +700,22 @@ public class TGcommanderView extends FrameView implements MouseListener {
         statusAnimationLabel.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         statusAnimationLabel.setName("statusAnimationLabel"); // NOI18N
 
+        progressBar.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         progressBar.setName("progressBar"); // NOI18N
 
         javax.swing.GroupLayout statusPanelLayout = new javax.swing.GroupLayout(statusPanel);
         statusPanel.setLayout(statusPanelLayout);
         statusPanelLayout.setHorizontalGroup(
             statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(statusPanelLayout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, statusPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(statusMessageLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 560, Short.MAX_VALUE)
+                .addComponent(statusMessageLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 241, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 335, Short.MAX_VALUE)
                 .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(statusAnimationLabel)
                 .addContainerGap())
-            .addComponent(statusPanelSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, 730, Short.MAX_VALUE)
+            .addComponent(statusPanelSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, 746, Short.MAX_VALUE)
         );
         statusPanelLayout.setVerticalGroup(
             statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -664,7 +723,7 @@ public class TGcommanderView extends FrameView implements MouseListener {
                 .addComponent(statusPanelSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, 2, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(statusMessageLabel)
+                    .addComponent(statusMessageLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(statusAnimationLabel)
                     .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(3, 3, 3))
@@ -713,11 +772,11 @@ public class TGcommanderView extends FrameView implements MouseListener {
         }
         if (t.getSelectedRowCount() == 0) {
             JOptionPane.showMessageDialog(t, "Nincs kijelölt file!");
-            return;
+
         }
         int[] rows = t.getSelectedRows();
         for (int i : rows) {
-           
+
             EFile source = null;
             File dest = null;
             try {
@@ -725,9 +784,33 @@ public class TGcommanderView extends FrameView implements MouseListener {
                 dest = genEFile(focus,i,false).getFile();
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(t, "A forrás vagy a cél file nem létezik!");
-                return;
-            }
 
+            }
+        statusMessageLabel.setText("Másolás...");           //állapotsor szövege
+        balLista.setEnabled(false);                         //táblázatok "letiltása"
+        jobbLista.setEnabled(false);                        //át lehet kattintani egyikből a másikba,
+        balLista.setBackground(java.awt.Color.LIGHT_GRAY);  //de nem lehet másik sort kijelölni
+        jobbLista.setBackground(java.awt.Color.LIGHT_GRAY); //akkor is, ha beállítom, hogy ne legyenek fókuszálhatóak
+        Masolo masolo = new Masolo(source, dest, t);        //másoló szál indítása
+        masolo.execute();
+        progressBar.setVisible(true);                       //progressbar megjelenítése
+        progressBar.setIndeterminate(true);                 //meghatározatlan idejű legyen
+        
+        
+    }
+    }
+    class Masolo extends SwingWorker<Void, Void> {
+
+        EFile source = null;
+        File dest = null;
+        JTable t = null;
+        Masolo(EFile src, File dst, JTable table) {
+            source = src;
+            dest = dst;
+            t = table;
+        }
+
+        public Void doInBackground() {
             try {
                 source.copyEntry(dest, false);
             } catch (IOException e) {
@@ -744,9 +827,24 @@ public class TGcommanderView extends FrameView implements MouseListener {
                     }
                 }
             }
-        }
         refresh();
+        return null;
+        }
+
+        @Override
+        public void done() {                                //amikor kész van a másolással
+            statusMessageLabel.setText("");                 //állapotsor törlése
+            balLista.setEnabled(true);                      //táblázatok engedélyezése
+            jobbLista.setEnabled(true);
+            balLista.setBackground(java.awt.Color.white);
+            jobbLista.setBackground(java.awt.Color.white);
+            progressBar.setIndeterminate(false);            //progressbar eltüntetése
+            progressBar.setVisible(false);
+            
+        }
     }
+
+
 
     @Action
     public void athelyezes() {
@@ -800,40 +898,75 @@ public class TGcommanderView extends FrameView implements MouseListener {
     }
 
     @Action
-    public void gyokerkonyvtar() {
+    public void gyokerkonyvtar() {                                          //egyelőre ott lép vissza a gyökérbe, ahol a fókusz van
+        listDir(focus,new EFile(new File("/")),showHidden);                //gyökérkönyvtár listázása
+        if (focus) {jobbKonyvtar.setText(jobb.getFile().getAbsolutePath()); //könyvtárjelző címke beállítása
+        } else {balKonyvtar.setText(bal.getFile().getAbsolutePath());}
     }
 
     @Action
-    public void szuloKonyvtar() {
+    public void szuloKonyvtar() {                                           //egyelőre ott lép vissza a szülőkönyvtárba, ahol a fókusz van
+        listDir(focus,new EFile((focus?jobb:bal).getFile().getParentFile()),showHidden);    //szülőkönyvtár listázása
+        if (focus) {jobbKonyvtar.setText(jobb.getFile().getAbsolutePath());                 //könyvtárjelző címke beállítása
+        } else {balKonyvtar.setText(bal.getFile().getAbsolutePath());}
+    }
+
+    @Action
+    public void atnevezes() {
+    }
+
+    @Action
+    public void rejtettFajlok() {                       //még nem teljesen működik, valamiért mindig visszalép a gyökérkönyvtárba
+        showHidden=rejtettFajlMenuItem.isSelected();
+        refresh();
     }
 
    
 
 
 
+    private boolean ActionEvent = false;
+    public boolean isActionEvent() {
+        return ActionEvent;
+    }
+
+    public void setActionEvent(boolean b) {
+        boolean old = isActionEvent();
+        this.ActionEvent = b;
+        firePropertyChange("ActionEvent", old, isActionEvent());
+    }
+
+    
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton athelyezesGomb;
     private javax.swing.JMenuItem athelyezesMenuItem;
+    private javax.swing.JMenuItem atnevezesMenuItem;
     private javax.swing.JPanel balFelsoPanel;
+    private javax.swing.JButton balGyokerGomb;
     private javax.swing.JLabel balKonyvtar;
     private javax.swing.JTable balLista;
     private javax.swing.JPanel balPanel;
     private javax.swing.JScrollPane balScrollPane;
+    private javax.swing.JButton balSzuloGomb;
     private javax.swing.JPopupMenu.Separator elvalaszto1;
     private javax.swing.JToolBar eszkoztar;
     private javax.swing.JPanel jobbFelsoPanel;
+    private javax.swing.JButton jobbGyokerGomb;
     private javax.swing.JLabel jobbKonyvtar;
     private javax.swing.JTable jobbLista;
     private javax.swing.JPanel jobbPanel;
     private javax.swing.JScrollPane jobbScrollPane;
+    private javax.swing.JButton jobbSzuloGomb;
     private javax.swing.JButton kilepesGomb;
+    private javax.swing.JButton kilepesGomb1;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JMenuItem masolasMenuItem;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JMenu nezetMenu;
     private javax.swing.JSplitPane panelek;
     private javax.swing.JProgressBar progressBar;
-    private javax.swing.JCheckBoxMenuItem rejtettFajlMenupont;
+    private javax.swing.JCheckBoxMenuItem rejtettFajlMenuItem;
     private javax.swing.JLabel statusAnimationLabel;
     private javax.swing.JLabel statusMessageLabel;
     private javax.swing.JPanel statusPanel;
