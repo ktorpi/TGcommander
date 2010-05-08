@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Arrays;
+import javax.swing.JProgressBar;
 
 
 /**
@@ -18,6 +19,10 @@ public class EFile {
 
     /** A becsomagolt File. */
     private File file;
+
+    /** A formázott atrribútumok */
+    private EntryAttributes attributes;
+
 
     /**
      * Ha a bejegyzés könyvtár ez az adattag tárolja a benen lévő
@@ -33,6 +38,7 @@ public class EFile {
      */
     public EFile(File f) {
         file = f;
+        attributes = new EntryAttributes(f);
     }
 
     /**
@@ -40,9 +46,9 @@ public class EFile {
      * @param dest A célfájl bejegyzés. Fontos: Nem a célkönyvtár!
      * @throws IOException hiba lépett fel a másolás közben
      */
-    private void copyFile(File dest) throws IOException {
+    private void copyFile(File dest, JProgressBar pBar) throws IOException {
         int len;                                        // a tényleges kiolvasott bájtok száma
-        byte buffer[] = new byte[2048];                 // 2 KB-os puffer
+        byte buffer[] = new byte[4096];                 // 4 KB-os puffer
         FileInputStream in = null;
         FileOutputStream out = null;
 
@@ -51,6 +57,7 @@ public class EFile {
             out = new FileOutputStream(dest);
             while ((len = in.read(buffer)) != -1) {     // beolvasás a pufferbe, majd a beolvasott bájtok kiírása
                 out.write(buffer, 0, len);
+                pBar.setValue((pBar.getValue() + (int)Math.round(len/1024.0)));    // progressbart beállítjuk
             }
         } catch (IOException e) {
             IOException ex = new IOException("A fájl másolása nem lehetséges innen: "
@@ -75,10 +82,11 @@ public class EFile {
      * másolódnak a dest alá.
      * @param forced Ha ture és már létezik a célfájl, nem kérdezünk, hanem felülírjuk.
      * 
+     * @param pBar
      * @throws IOException Hiba lépett fel a másolás közben.
      * @throws OverwritingException Már létezika  célfájl.
      */
-    public void copyEntry(File dest, boolean forced) throws IOException, OverwritingException {
+    public void copyEntry(File dest, boolean forced, JProgressBar pBar) throws IOException, OverwritingException {
         // a forrás rendben van-e?
         if (! file.exists()) {
             throw new IOException("A forrás nem található: " + file.getAbsolutePath());
@@ -97,27 +105,31 @@ public class EFile {
             if (! dest.exists()) {
                 if (! dest.mkdir()) {
                     throw new IOException("Nem hozható létre a könyvtár: " + dest.getAbsolutePath());
+                } else {
+                    // egy könyvtár 4096 bájtot foglal, 4 egységgel növeljüka progressbart
+                    pBar.setValue(pBar.getValue() + 4);
                 }
             }
             String[] list = file.list();
             for (String i : list) {
-                new EFile(new File(file, i)).copyEntry(new File(dest, i), false);
+                new EFile(new File(file, i)).copyEntry(new File(dest, i), false, pBar);
             }
         } else {                                        // ha a file fájl, másoljuk is
             if (dest.exists() && !forced) {
                 throw new OverwritingException("A fájl már létezik: " + dest.getAbsolutePath());
             }
-            copyFile(dest);
+            copyFile(dest, pBar);
         }
     }
 
     /**
      * A csomagolt 'file'-hoz tartozó bejegyzést törlése. Amennyiben a file mappa
      * és nem üres, rekurzívan töröljük.
+     * @param pBar
      * @return false Ha a törlés nemsikerült (pl.: jogosultságok miatt).
      * @throws IOException
      */
-    public boolean deleteEntry() throws IOException {
+    public boolean deleteEntry(JProgressBar pBar) throws IOException {
         if (! file.exists()) {
             throw new IOException("Nem található: " + file.getAbsolutePath());
         } else if (! file.canWrite()) {
@@ -128,13 +140,7 @@ public class EFile {
         if (file.isDirectory()) {
             File[] fList = file.listFiles();
             for (File i : fList) {
-                if (! new EFile(i).deleteEntry()) {
-                    /*
-                     * TODO: nemtudom menynire akarunk belemenni, de ha nagyon
-                     * akkor itt is lehetne dobni egy ablkot, hogy kihagyjukjuk, ujrapróbáljuk meg ilyenek...
-                     * az "itt"-et ugyértem hogy a kivétel elkapásákor
-                     * Ha meg nem akor nem is kell kivételt dobni szerintem itt.
-                     */
+                if (! new EFile(i).deleteEntry(pBar)) {
                     if (i.isFile()) {
                         throw new IOException("Sikertelen törlés: " + i.getAbsolutePath());
                     }
@@ -142,8 +148,13 @@ public class EFile {
                 }
             }
         }
-
-        return file.delete();                              // ha f mappa, mostmár nem üres, törölhetjük
+        long length = file.length();
+        if (file.delete()) {                            // ha f mappa, mostmár nem üres, törölhetjük
+            pBar.setValue((pBar.getValue() + (int)Math.round(length/1024.0)));
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -151,17 +162,22 @@ public class EFile {
      * a művelet (pl. mert a cél egy másik fájlrendszeren van), akkor a
      * másolás-törlés kombinációval probálkozunk.
      * @param dest Amire át akarjuk nevezni, ahova átakarjuk helyezni.
+     * @param pBar
      * @throws IOException Sikertelen átnevezés/áthelyezés
+     * @throws OverwritingException
      */
-    public void renameEntry(File dest) throws IOException, OverwritingException {
+    public void renameEntry(File dest, JProgressBar pBar) throws IOException, OverwritingException {
         
             if (!dest.exists()) {
                 if (!file.renameTo(dest)) {             // ha nem sikerült átnevezéssel, akkor másolás-törlés
-                    copyEntry(dest, false);
-                    if (!deleteEntry()) {
+                    copyEntry(dest, false, pBar);
+                    if (!deleteEntry(pBar)) {
                         throw new IOException("Nem sikerült törölni a következőt: "
                                 + file.getAbsolutePath());
                     }
+                } else {                                // sikerült
+                    // gyors készvagyunk vele...
+                    pBar.setValue(pBar.getMaximum());
                 }
             } else {
                 throw new OverwritingException("Már létezik: " + dest.getAbsolutePath());
@@ -178,6 +194,10 @@ public class EFile {
         return this.file;
     }
 
+    /** Atributumok visszadása */
+    public EntryAttributes getAttributes() {
+        return attributes;
+    }
 
     /**
      * A becsomagolt file tartalmának visszadása.

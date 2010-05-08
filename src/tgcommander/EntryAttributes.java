@@ -8,16 +8,23 @@ import java.text.DateFormat;
  * @author Kádár István
  */
 public class EntryAttributes implements Comparable<EntryAttributes> {
+
+    /** Melyik fájlhoz tartoznak az attribútumok. */
+    private File file;
+
     /** bejegyzés neve */
     private String name;
     /** kiterjesztés */
     private String ext;
-    /** méret */
+    /** méret - formázott sztring */
     private String size;
+    /** méret - bájtokban */
+    private long length = 0;
     /** utolsó módosítás dátuma */
     private String date;
     /** rxw jogosultságok */
     private String rights;
+
 
     /**
      * Konstruktor.
@@ -26,6 +33,7 @@ public class EntryAttributes implements Comparable<EntryAttributes> {
      * @param f File, melynek attribútumain dolgozuk.
      */
     public EntryAttributes(File f) {
+        file = f;        
         if (f.isDirectory()) {
             name = f.getName();
             ext = "";
@@ -39,7 +47,8 @@ public class EntryAttributes implements Comparable<EntryAttributes> {
                 name = f.getName();
                 ext = "";
             }
-            size = formatSize(f.length());
+            length = file.length();
+            size = formatSize(length);
         }
         
         DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
@@ -75,6 +84,21 @@ public class EntryAttributes implements Comparable<EntryAttributes> {
         return s + " " + unit.values()[i].toString();
     }
     
+    /**
+     * Könyvtár méretének kiszámolása rekurzív bejárással.
+     * @param f Aminek a méretét meg akarjuk határozni.
+     */
+    private void calcDirLength(File f) {
+        if (f.isDirectory()) {
+            File[] list = f.listFiles();
+            for (File i : list) {
+                calcDirLength(i);
+            }
+        }
+            length += f.length();
+        
+    }
+
     // Getterek
     
     public String getDate() {
@@ -95,6 +119,21 @@ public class EntryAttributes implements Comparable<EntryAttributes> {
 
     public String getSize() {
         return size;
+    }
+
+
+    /**
+     * Visszaadja a bejegyzés hosszát bájtokban, ha könyvtár, itt
+     * történik az inicializálás.
+     * @return
+     */
+    public long getLength() {
+        // ha a hossza 0 és könyvtár, meghatározzuk a könyvtár méretét
+        if (length == 0 && file.isDirectory()) {
+            calcDirLength(file);
+        }
+
+        return length;
     }
 
 
