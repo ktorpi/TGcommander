@@ -45,20 +45,30 @@ public class TGcommanderView extends FrameView implements MouseListener {
     private int holVoltBal;
     private int holVoltJobb;
 
+    /**
+     * az egér lekezelése
+     * @param e - az esemény
+     */
     public void mouseClicked(MouseEvent e){
 
+        //ha a másik oldalra kattintottunk, mint ahol a focus van, akkor change
         JTable target = (JTable)e.getSource();
         int selection = target.getSelectedRow();
         if ((target == balLista && focus) || (target == jobbLista && !focus)) {
             new ChangeFocusAction().actionPerformed(null);
+            // a selection megmarad
             target.getSelectionModel().setSelectionInterval(selection, selection);
         }
 
+        //ha duplakatt, akkor listazas
         if (e.getClickCount() == 2) {
             listazasAction();
         }
     }
 
+    /**
+     * a focus oldalra listázza a kijelölt file-t, ha directory
+     */
     public void listazasAction() {
         JTable t = null;
         EFile oldal = null;
@@ -98,6 +108,12 @@ public class TGcommanderView extends FrameView implements MouseListener {
         }
     }
 
+    /**
+     * "hova" oldalra kilistázza "mit" könyvtárat, ha "hidden", akkor a rejtetteket is
+     * @param hova
+     * @param mit
+     * @param hidden
+     */
     public void listDir(boolean hova, EFile mit, boolean hidden) {
         EntryAttributes[] ea = mit.getContent(hidden);
         JTable target;
@@ -157,6 +173,10 @@ public class TGcommanderView extends FrameView implements MouseListener {
         }
     }
 
+    /**
+     * debug segédfv
+     * @param m - plusz message
+     */
     public void __dump(String m) {
         String msg = m + "\n\njobb: "+ jobb.getFile().getAbsolutePath()
                 + "\nbal: "+ bal.getFile().getAbsolutePath()
@@ -164,6 +184,9 @@ public class TGcommanderView extends FrameView implements MouseListener {
         JOptionPane.showMessageDialog(menuBar, msg);
     }
 
+    /**
+     * oldalak frissítése selection megtartásával, ellenőrzésekkel
+     */
     public void refresh() {
         int id;
         if (focus) {
@@ -213,18 +236,24 @@ public class TGcommanderView extends FrameView implements MouseListener {
         return osszdarab+" fájl, összesen "+EntryAttributes.formatSize(osszmeret);
     }
 
+    //ezek csak a MouseListener interface miatt kellenek
     public void mousePressed(MouseEvent e){}
     public void mouseReleased(MouseEvent e){}
     public void mouseEntered(MouseEvent e){}
     public void mouseExited(MouseEvent e){}
 
-
+    /**
+     * Belső class, hogy az enter actionMap-jába is mehessen a listazasAction fv.
+     */
     class ListazasAction extends AbstractAction {
         public void actionPerformed(ActionEvent e) {
             listazasAction();
         }
     }
 
+    /**
+     * A fókuszváltást lekezelő belső class
+     */
     class ChangeFocusAction extends AbstractAction {
         public void actionPerformed(ActionEvent e) {
             if (focus) {
@@ -313,7 +342,7 @@ public class TGcommanderView extends FrameView implements MouseListener {
         balLista.addMouseListener(this);
         jobbLista.addMouseListener(this);
 
-
+        //enter és tab működésének beállítása
         KeyStroke enter = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
         KeyStroke tab = KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0);
         balLista.getActionMap().put("listazas", new ListazasAction());
@@ -786,6 +815,15 @@ public class TGcommanderView extends FrameView implements MouseListener {
         setToolBar(eszkoztar);
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * efile generálása
+     * @param side - melyik oldalt nézze
+     * @param index - hanyadik sorból szedje a file-t
+     * @param source - ha true, akkor a source lesz belőle (az adott oldali path-szal)
+     *                  ha false, akkor a dest lesz (a másik oldali path-szal)
+     * @return efile
+     * @throws Exception
+     */
     public EFile genEFile(boolean side, int index, boolean source) throws Exception {
         JTable t = null;
         EFile parent = null;
@@ -807,10 +845,12 @@ public class TGcommanderView extends FrameView implements MouseListener {
         if (t.getValueAt(index, 1) != "") {
             nev += "." + t.getValueAt(index, 1);
         }
-        JOptionPane.showMessageDialog(t, nev);
         return new EFile(new File(nev));
     }
 
+    /**
+     * elmenti, hogy mik voltak kiválasztva az oldalakon
+     */
     public void saveSelections() {
         holVoltBal = balLista.getSelectedRow();
         holVoltJobb = jobbLista.getSelectedRow();
