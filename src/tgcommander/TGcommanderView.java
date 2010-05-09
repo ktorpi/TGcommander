@@ -864,17 +864,10 @@ public class TGcommanderView extends FrameView implements MouseListener {
             masolo.execute();
     }
 
-
-    /*
-     * TODO:
-     * Lehet hogy az egész másolást ebbe az osztályba kéne irni, mert
-     * így minden kijelölt sornál létrejön és megcsinálj azt a másolást, de nem
-     * az összeset, a progressBar viszont az összeset mérné...
-     */
     class Masolo extends SwingWorker<Void, Void> {
 
         public Void doInBackground() {
-            EFile source = null;
+        EFile source = null;
         File dest = null;
         JTable t = null;
         saveSelections();
@@ -888,10 +881,10 @@ public class TGcommanderView extends FrameView implements MouseListener {
         int[] rows = t.getSelectedRows();
 
 
-        balLista.setEnabled(false);                         //táblázatok "letiltása"
-        jobbLista.setEnabled(false);                        //át lehet kattintani egyikből a másikba,
-        balLista.setBackground(java.awt.Color.LIGHT_GRAY);  //de nem lehet másik sort kijelölni
-        jobbLista.setBackground(java.awt.Color.LIGHT_GRAY); //akkor is, ha beállítom, hogy ne legyenek fókuszálhatóak
+        balLista.setEnabled(false);
+        jobbLista.setEnabled(false);
+        balLista.setBackground(java.awt.Color.LIGHT_GRAY);
+        jobbLista.setBackground(java.awt.Color.LIGHT_GRAY);
 
         /*
          * Összegezzuk, hogy hány bájtot kell másolni
@@ -997,35 +990,91 @@ public class TGcommanderView extends FrameView implements MouseListener {
 
     @Action
     public void athelyezes() {
-        EFile oldal = bal;
-        EFile masik = jobb;
+        Athelyezo athelyezo = new Athelyezo();
+        athelyezo.execute();
+    }
+
+    class Athelyezo extends SwingWorker<Void,Void> {
+
+        public Void doInBackground() {
         JTable t = balLista;
         if (focus) {
-            oldal = jobb;
-            masik = bal;
             t = jobbLista;
         }
+        EFile source = null;
+            File dest = null;
         if (t.getSelectedRowCount() == 0) {
             JOptionPane.showMessageDialog(mainPanel, "Nincs kijelölt file!");
 
         }
         int[] rows = t.getSelectedRows();
-        for (int i : rows) {
+        balLista.setEnabled(false);
+        jobbLista.setEnabled(false);
+        balLista.setBackground(java.awt.Color.LIGHT_GRAY);
+        jobbLista.setBackground(java.awt.Color.LIGHT_GRAY);
 
-            EFile source = null;
-            File dest = null;
+        /*
+         * Összegezzuk, hogy hány bájtot kell másolni
+         * addig knight rideres progressbar
+         */
+        statusMessageLabel.setText("Áthelyezés...");           //állapotsor szövege
+        // progressbar beállítása
+        progressBar.setVisible(true);                       //progressbar megjelenítése
+        progressBar.setIndeterminate(true);
+        // kiszámoljuk hány bájtot kell másolni
+        long bytesToMove = 0;
+        for (int i : rows) {
+            source = null;
             try {
                 source = genEFile(focus,i,true);
-                dest = new File (masik.getFile().getAbsolutePath()+File.separator+source.getFile().getName());
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(mainPanel, "A forrásfile nem létezik!");
-
+                JOptionPane.showMessageDialog(mainPanel, "A forrás vagy a cél file nem létezik!");
+                statusMessageLabel.setText("");                 //állapotsor törlése
+                balLista.setEnabled(true);                      //táblázatok engedélyezése
+                jobbLista.setEnabled(true);
+                balLista.setBackground(java.awt.Color.white);
+                jobbLista.setBackground(java.awt.Color.white);
+                progressBar.setIndeterminate(false);
             }
-        try {
+            bytesToMove += source.getAttributes().getLength();
+        }
+        /*
+         * 1024-gyel leosztunk, mert kifuthatunk az int értéktartományából.
+         * Így egy egség a progressBar-on 1KB lesz kb, ez 2 TB másolandót kifut.
+         */
+        int progressBarMaxValue = (int)(bytesToMove / 1024);
+        progressBar.setIndeterminate(false);
+        progressBar.setMaximum(progressBarMaxValue);
+
+        /*
+         * Másoljuk át a kijelölteket...
+         */
+        for (int i : rows) {
+            source = null;
+            dest = null;
+            try {
+                source = genEFile(focus,i,true);
+                dest = genEFile(focus,i,false).getFile();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(mainPanel, "A forrás vagy a cél file nem létezik!");
+                statusMessageLabel.setText("");                 //állapotsor törlése
+                balLista.setEnabled(true);                      //táblázatok engedélyezése
+                jobbLista.setEnabled(true);
+                balLista.setBackground(java.awt.Color.white);
+                jobbLista.setBackground(java.awt.Color.white);
+            }
+
+            progressBar.setStringPainted(true);
+            athelyez(source, dest);
+        }
+        return null;
+        }
+        private void athelyez(EFile source, File dest) {
+            try {
                 // FIXME
                 source.renameEntry(dest, progressBar);
             } catch (IOException e) {
-                JOptionPane.showMessageDialog(t, e.getMessage());
+                JOptionPane.showMessageDialog(mainPanel, e.getMessage());
             } catch (OverwritingException e) {
                 int optionType = JOptionPane.YES_NO_CANCEL_OPTION;
                 Object[] options = {"Felülírás","Átnevezés","Mégse"};
@@ -1039,14 +1088,32 @@ public class TGcommanderView extends FrameView implements MouseListener {
                         JOptionPane.showMessageDialog(mainPanel, e.getMessage());
                     }
                 } else if (res == JOptionPane.NO_OPTION) {
-                    atnevezes();
-                    athelyezes();
+                    source = new EFile(atnevezes());
+                    dest = new File(dest.getParent()+File.separator+source.getFile().getName());
+                    if (source!=null) {athelyez(source,dest);};
                 }
             }
-            }
-        refresh();
-    }
+        }
+         @Override
+        public void done() {                                //amikor kész van a másolással
+            statusMessageLabel.setText("");                 //állapotsor törlése
+            balLista.setEnabled(true);                      //táblázatok engedélyezése
+            jobbLista.setEnabled(true);
+            balLista.setBackground(java.awt.Color.white);
+            jobbLista.setBackground(java.awt.Color.white);
 
+            progressBar.setValue(progressBar.getMaximum()); // mennyen el a végéig biztos, ami biztos... :)
+            progressBar.setValue(0);
+            progressBar.setStringPainted(false);
+
+            refresh();
+            if (focus) {
+                jobbLista.requestFocus();
+            } else {
+                balLista.requestFocus();
+            }
+        }
+    }
     @Action
     public void ujKonyvtar() {
         EFile oldal = bal;
@@ -1066,23 +1133,67 @@ public class TGcommanderView extends FrameView implements MouseListener {
 
     @Action
     public void torles() {
-        JTable t = balLista;
+        Torlo torlo = new Torlo();
+        torlo.execute();
+    }
+    class Torlo extends SwingWorker<Void,Void> {
+        public Void doInBackground() {
+            JTable t = balLista;
         if (focus) {
             t = jobbLista;
         }
+        EFile source = null;
         if (t.getSelectedRowCount() == 0) {
             JOptionPane.showMessageDialog(mainPanel, "Nincs kijelölt file!");
-            return;
+            return null;
         }
         int[] rows = t.getSelectedRows();
+        balLista.setEnabled(false);
+        jobbLista.setEnabled(false);
+        balLista.setBackground(java.awt.Color.LIGHT_GRAY);
+        jobbLista.setBackground(java.awt.Color.LIGHT_GRAY);
+
+        /*
+         * Összegezzuk, hogy hány bájtot kell másolni
+         * addig knight rideres progressbar
+         */
+        statusMessageLabel.setText("Áthelyezés...");           //állapotsor szövege
+        // progressbar beállítása
+        progressBar.setVisible(true);                       //progressbar megjelenítése
+        progressBar.setIndeterminate(true);
+        // kiszámoljuk hány bájtot kell másolni
+        long bytesToDelete = 0;
+        for (int i : rows) {
+            source = null;
+            try {
+                source = genEFile(focus,i,true);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(mainPanel, "A forrás vagy a cél file nem létezik!");
+                statusMessageLabel.setText("");                 //állapotsor törlése
+                balLista.setEnabled(true);                      //táblázatok engedélyezése
+                jobbLista.setEnabled(true);
+                balLista.setBackground(java.awt.Color.white);
+                jobbLista.setBackground(java.awt.Color.white);
+                progressBar.setIndeterminate(false);
+            }
+            bytesToDelete += source.getAttributes().getLength();
+        }
+        /*
+         * 1024-gyel leosztunk, mert kifuthatunk az int értéktartományából.
+         * Így egy egség a progressBar-on 1KB lesz kb, ez 2 TB másolandót kifut.
+         */
+        int progressBarMaxValue = (int)(bytesToDelete / 1024);
+        progressBar.setIndeterminate(false);
+        progressBar.setMaximum(progressBarMaxValue);
+
         for (int i : rows) {
 
-            EFile source = null;
+            source = null;
             try {
                 source = genEFile(focus,i,true);
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(mainPanel, "A forrásfile nem létezik!");
-                return;
+                return null;
             }
 
             try {
@@ -1093,6 +1204,27 @@ public class TGcommanderView extends FrameView implements MouseListener {
             }
         }
         refresh();
+        return null;
+        }
+        @Override
+         public void done() {                                //amikor kész van a másolással
+            statusMessageLabel.setText("");                 //állapotsor törlése
+            balLista.setEnabled(true);                      //táblázatok engedélyezése
+            jobbLista.setEnabled(true);
+            balLista.setBackground(java.awt.Color.white);
+            jobbLista.setBackground(java.awt.Color.white);
+
+            progressBar.setValue(progressBar.getMaximum()); // mennyen el a végéig biztos, ami biztos... :)
+            progressBar.setValue(0);
+            progressBar.setStringPainted(false);
+
+            refresh();
+            if (focus) {
+                jobbLista.requestFocus();
+            } else {
+                balLista.requestFocus();
+            }
+        }
     }
 
     @Action
@@ -1120,13 +1252,11 @@ public class TGcommanderView extends FrameView implements MouseListener {
     @Action
     public File atnevezes() {
         EFile oldal = bal;
-        EFile masik = jobb;
         JTable t = balLista;
         EFile source = null;
         File dest = null;
         if (focus) {
             oldal = jobb;
-            masik = bal;
             t = jobbLista;
         }
         if (t.getSelectedRowCount() == 0) {
@@ -1187,19 +1317,6 @@ public class TGcommanderView extends FrameView implements MouseListener {
     }
 
    
-
-
-
-    private boolean ActionEvent = false;
-    public boolean isActionEvent() {
-        return ActionEvent;
-    }
-
-    public void setActionEvent(boolean b) {
-        boolean old = isActionEvent();
-        this.ActionEvent = b;
-        firePropertyChange("ActionEvent", old, isActionEvent());
-    }
 
     
 
