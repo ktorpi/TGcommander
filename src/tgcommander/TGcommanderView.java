@@ -16,14 +16,11 @@
 package tgcommander;
 
 import org.jdesktop.application.Action;
-import org.jdesktop.application.ResourceMap;
 import org.jdesktop.application.SingleFrameApplication;
 import org.jdesktop.application.FrameView;
-import org.jdesktop.application.TaskMonitor;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.table.*;
-
 import java.io.*;
 
 /**
@@ -98,8 +95,18 @@ public class TGcommanderView extends FrameView implements MouseListener {
         if (temp.isDirectory()) {
             if (temp.canExecute()) {
                 listDir(focus,new EFile(temp),showHidden);
-                if (focus) jobbKonyvtar.setText(uj);
-                else balKonyvtar.setText(uj);
+                try {
+                if (temp.getParent().equals("/")) {                
+                    if (focus) jobbKonyvtar.setText("/"+temp.getName());
+                    else balKonyvtar.setText("/"+temp.getName());
+                } else {
+                    if (focus) jobbKonyvtar.setText(uj);
+                    else balKonyvtar.setText(uj);
+                }
+                } catch (NullPointerException n) {
+                    if (focus) jobbKonyvtar.setText("/");
+                    else balKonyvtar.setText("/");
+                }
                 if (focus) jobbFajlokSzama.setText(fajlOsszesites(new EFile(temp),showHidden));
                 else balFajlokSzama.setText(fajlOsszesites(new EFile(temp),showHidden));
             } else {
@@ -129,10 +136,16 @@ public class TGcommanderView extends FrameView implements MouseListener {
         }
         DefaultTableModel dtm = (DefaultTableModel)target.getModel();
         dtm.getDataVector().removeAllElements();
-        Object[][] tomb = new Object[ea.length+1][5];
-        tomb[0][0] = "..";
-        for (int j=1; j<5; j++) {tomb[0][j] = ""; }
+        Object[][] tomb = null;
         int i = 1;
+        if (!(mit.getFile().getAbsolutePath().equals("/"))) {
+            tomb = new Object[ea.length+1][5];
+            tomb[0][0] = "..";
+            for (int j=1; j<5; j++) {tomb[0][j] = ""; }
+        } else {
+            i=0;
+            tomb = new Object[ea.length][5];
+        }
         for (EntryAttributes e : ea) {
             tomb[i][0] = e.getName();
             tomb[i][1] = e.getExt();
@@ -141,7 +154,6 @@ public class TGcommanderView extends FrameView implements MouseListener {
             tomb[i][4] = e.getRights();
             i++;
         }
-
         target.setModel(new javax.swing.table.DefaultTableModel(
             tomb,
             new String [] {
@@ -758,6 +770,22 @@ public class TGcommanderView extends FrameView implements MouseListener {
         setToolBar(eszkoztar);
     }// </editor-fold>//GEN-END:initComponents
 
+    private void balGyokerGombMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_balGyokerGombMouseClicked
+        gyokerkonyvtar(false);
+    }//GEN-LAST:event_balGyokerGombMouseClicked
+
+    private void balSzuloGombMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_balSzuloGombMouseClicked
+        szuloKonyvtar(false);
+    }//GEN-LAST:event_balSzuloGombMouseClicked
+
+    private void jobbGyokerGombMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jobbGyokerGombMouseClicked
+        gyokerkonyvtar(true);
+    }//GEN-LAST:event_jobbGyokerGombMouseClicked
+
+    private void jobbSzuloGombMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jobbSzuloGombMouseClicked
+        szuloKonyvtar(true);
+    }//GEN-LAST:event_jobbSzuloGombMouseClicked
+
     /**
      * efile generálása
      * @param side - melyik oldalt nézze
@@ -824,10 +852,11 @@ public class TGcommanderView extends FrameView implements MouseListener {
         int[] rows = t.getSelectedRows();
 
 
+        
         balLista.setEnabled(false);
         jobbLista.setEnabled(false);
-        balLista.setBackground(java.awt.Color.LIGHT_GRAY);
-        jobbLista.setBackground(java.awt.Color.LIGHT_GRAY);
+        menuBar.setEnabled(false);
+        eszkoztar.setEnabled(false);
 
         /*
          * Összegezzuk, hogy hány bájtot kell másolni
@@ -899,6 +928,7 @@ public class TGcommanderView extends FrameView implements MouseListener {
                     try {
                         source.copyEntry(dest, true, progressBar);
                     } catch (Exception ex) {
+                        System.out.println("itt abblak");
                         JOptionPane.showMessageDialog(mainPanel, e.getMessage());
                     }
                 } else if (res == JOptionPane.NO_OPTION) {
@@ -1076,8 +1106,12 @@ public class TGcommanderView extends FrameView implements MouseListener {
 
     @Action
     public void torles() {
-        Torlo torlo = new Torlo();
-        torlo.execute();
+        int opt = JOptionPane.showConfirmDialog(mainPanel,
+                        "Biztosan törlöd a kijelölt eleme(ke)t?", "Törlés",JOptionPane.YES_NO_OPTION);
+        if (opt == JOptionPane.YES_OPTION ) {
+            Torlo torlo = new Torlo();
+            torlo.execute();
+        }
     }
     class Torlo extends SwingWorker<Void,Void> {
         public Void doInBackground() {
@@ -1100,7 +1134,7 @@ public class TGcommanderView extends FrameView implements MouseListener {
          * Összegezzuk, hogy hány bájtot kell másolni
          * addig knight rideres progressbar
          */
-        statusMessageLabel.setText("Áthelyezés...");           //állapotsor szövege
+        statusMessageLabel.setText("Törlés...");           //állapotsor szövege
         // progressbar beállítása
         progressBar.setVisible(true);                       //progressbar megjelenítése
         progressBar.setIndeterminate(true);
@@ -1128,23 +1162,27 @@ public class TGcommanderView extends FrameView implements MouseListener {
         int progressBarMaxValue = (int)(bytesToDelete / 1024);
         progressBar.setIndeterminate(false);
         progressBar.setMaximum(progressBarMaxValue);
+        progressBar.setStringPainted(true);
 
         for (int i : rows) {
 
             source = null;
             try {
-                source = genEFile(focus,i,true);
+                source = genEFile(focus, i, true);
+
+
+                try {
+                    source.deleteEntry(progressBar);
+                } catch (IOException e) {
+                    JOptionPane.showMessageDialog(mainPanel, e.getMessage());
+                }
+
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(mainPanel, "A forrásfile nem létezik!");
                 return null;
             }
 
-            try {
-                // FIXME
-                source.deleteEntry(progressBar);
-            } catch (IOException e) {
-                JOptionPane.showMessageDialog(mainPanel, e.getMessage());
-            }
+
         }
         refresh();
         return null;
@@ -1171,21 +1209,21 @@ public class TGcommanderView extends FrameView implements MouseListener {
     }
 
     @Action
-    public void gyokerkonyvtar() {                                          //egyelőre ott lép vissza a gyökérbe, ahol a fókusz van
-        listDir(focus,new EFile(new File("/")),showHidden);                //gyökérkönyvtár listázása
-        if (focus) {jobbKonyvtar.setText(jobb.getFile().getAbsolutePath()); //könyvtárjelző címke beállítása
+    public void gyokerkonyvtar(boolean oldal) {
+        listDir(oldal,new EFile(new File("/")),showHidden);                         //gyökérkönyvtár listázása
+        if (oldal) {jobbKonyvtar.setText(jobb.getFile().getAbsolutePath());         //könyvtárjelző címke beállítása
         } else {balKonyvtar.setText(bal.getFile().getAbsolutePath());}
-        if (focus) jobbFajlokSzama.setText(fajlOsszesites(jobb,showHidden));
+        if (oldal) jobbFajlokSzama.setText(fajlOsszesites(jobb,showHidden));        //fájlokat összegző címke beállítása
                 else balFajlokSzama.setText(fajlOsszesites(bal,showHidden));
     }
 
     @Action
-    public void szuloKonyvtar() {                                           //egyelőre ott lép vissza a szülőkönyvtárba, ahol a fókusz van
+    public void szuloKonyvtar(boolean oldal) {
         try {
-            listDir(focus,new EFile((focus?jobb:bal).getFile().getParentFile()),showHidden);    //szülőkönyvtár listázása
-            if (focus) {jobbKonyvtar.setText(jobb.getFile().getAbsolutePath());                 //könyvtárjelző címke beállítása
+            listDir(oldal,new EFile((oldal?jobb:bal).getFile().getParentFile()),showHidden);    //szülőkönyvtár listázása
+            if (oldal) {jobbKonyvtar.setText(jobb.getFile().getAbsolutePath());                 //könyvtárjelző címke beállítása
             } else {balKonyvtar.setText(bal.getFile().getAbsolutePath());}
-            if (focus) jobbFajlokSzama.setText(fajlOsszesites(jobb,showHidden));
+            if (oldal) jobbFajlokSzama.setText(fajlOsszesites(jobb,showHidden));                //fájlokat összegző címke beállítása
                 else balFajlokSzama.setText(fajlOsszesites(bal,showHidden));
         } catch (NullPointerException ex) {
             //már root voltunk

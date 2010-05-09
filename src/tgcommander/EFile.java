@@ -112,7 +112,7 @@ public class EFile {
             }
             String[] list = file.list();
             for (String i : list) {
-                new EFile(new File(file, i)).copyEntry(new File(dest, i), false, pBar);
+                new EFile(new File(file, i)).copyEntry(new File(dest, i), forced, pBar);
             }
         } else {                                        // ha a file fájl, másoljuk is
             if (dest.exists() && !forced) {
