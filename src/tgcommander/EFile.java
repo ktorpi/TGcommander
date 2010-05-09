@@ -167,21 +167,20 @@ public class EFile {
      * @throws OverwritingException
      */
     public void renameEntry(File dest, JProgressBar pBar) throws IOException, OverwritingException {
-        
-            if (!dest.exists()) {
-                if (!file.renameTo(dest)) {             // ha nem sikerült átnevezéssel, akkor másolás-törlés
-                    copyEntry(dest, false, pBar);
-                    if (!deleteEntry(pBar)) {
-                        throw new IOException("Nem sikerült törölni a következőt: "
-                                + file.getAbsolutePath());
-                    }
-                } else {                                // sikerült
-                    // gyors készvagyunk vele...
-                    pBar.setValue(pBar.getMaximum());
+        if (!dest.exists()) {
+            if (!file.renameTo(dest)) {             // ha nem sikerült átnevezéssel, akkor másolás-törlés
+                copyEntry(dest, false, pBar);
+                if (!deleteEntry(pBar)) {
+                    throw new IOException("Nem sikerült törölni a következőt: "
+                            + file.getAbsolutePath());
                 }
-            } else {
-                throw new OverwritingException("Már létezik: " + dest.getAbsolutePath());
+            } else {                                // sikerült
+                // gyors készvagyunk vele...
+                pBar.setValue(pBar.getMaximum());
             }
+        } else {
+            throw new OverwritingException("Már létezik: " + dest.getAbsolutePath());
+        }
         
     }
 

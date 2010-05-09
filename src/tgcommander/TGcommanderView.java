@@ -8,13 +8,13 @@
  *          *több fájlra nem működik a másolás/áthelyezés átnevezéssel
  *          *átnevezésnél mégse gombnál is hibaüzenet van (mert nem lehet a fájlnév 0 karakteres)
  *          *gyökér- és szülőkönyvtár gomb a saját oldali táblázatot állítsa be (ne azt, amelyiken a fókusz van)
- *          *esetleg space-re könyvtár méretének kijelzése
- *          *táblázat oszlopfejléceire kattintva rendezés
  *          *kommentek, javadoc
  */
 
 package tgcommander;
 
+import java.awt.Color;
+import java.awt.Cursor;
 import org.jdesktop.application.Action;
 import org.jdesktop.application.SingleFrameApplication;
 import org.jdesktop.application.FrameView;
@@ -367,7 +367,7 @@ public class TGcommanderView extends FrameView implements MouseListener {
         jobbSzuloGomb = new javax.swing.JButton();
         jobbFajlokSzama = new javax.swing.JLabel();
         menuBar = new javax.swing.JMenuBar();
-        javax.swing.JMenu fileMenu = new javax.swing.JMenu();
+        fileMenu = new javax.swing.JMenu();
         atnevezesMenuItem = new javax.swing.JMenuItem();
         masolasMenuItem = new javax.swing.JMenuItem();
         athelyezesMenuItem = new javax.swing.JMenuItem();
@@ -827,7 +827,54 @@ public class TGcommanderView extends FrameView implements MouseListener {
         holVoltJobb = jobbLista.getSelectedRow();
     }
 
+    /**
+     * Bizonyos komponenseket letiltunk, hogy valmilyen művelet közben, ne lehessen
+     * újat indítani, kilépni.
+     * @author Kádár István
+     */
+    private void disableComponetes() {
+        balLista.setEnabled(false);
+        balLista.setBackground(new Color(230, 221, 213));
+        jobbLista.setEnabled(false);
+        jobbLista.setBackground(new Color(230, 221, 213));
+        fileMenu.setEnabled(false);
+        masolasGomb.setEnabled(false);
+        athelyezesGomb.setEnabled(false);
+        atnevezesGomb.setEnabled(false);
+        torlesGomb.setEnabled(false);
+        ujKonyvtarGomb.setEnabled(false);
+        kilepesGomb.setEnabled(false);
+        balGyokerGomb.setEnabled(false);
+        balSzuloGomb.setEnabled(false);
+        jobbGyokerGomb.setEnabled(false);
+        jobbSzuloGomb.setEnabled(false);
+        getFrame().setCursor(new Cursor(Cursor.WAIT_CURSOR));
+        getFrame().setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+    }
 
+    /**
+     * Komponensek tiltásának feloldása.
+     * @author Kádár István
+     */
+    private void enableComponents() {
+        balLista.setEnabled(true);
+        balLista.setBackground(Color.white);
+        jobbLista.setEnabled(true);
+        jobbLista.setBackground(Color.white);
+        fileMenu.setEnabled(true);
+        masolasGomb.setEnabled(true);
+        atnevezesGomb.setEnabled(true);
+        athelyezesGomb.setEnabled(true);
+        torlesGomb.setEnabled(true);
+        ujKonyvtarGomb.setEnabled(true);
+        kilepesGomb.setEnabled(true);
+        balGyokerGomb.setEnabled(true);
+        balSzuloGomb.setEnabled(true);
+        jobbGyokerGomb.setEnabled(true);
+        jobbSzuloGomb.setEnabled(true);
+        getFrame().setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+        getFrame().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }
 
    @Action
     public void masolas() {
@@ -852,11 +899,8 @@ public class TGcommanderView extends FrameView implements MouseListener {
         int[] rows = t.getSelectedRows();
 
 
-        
-        balLista.setEnabled(false);
-        jobbLista.setEnabled(false);
-        menuBar.setEnabled(false);
-        eszkoztar.setEnabled(false);
+        // komponensek letiltása
+        disableComponetes();
 
         /*
          * Összegezzuk, hogy hány bájtot kell másolni
@@ -875,11 +919,7 @@ public class TGcommanderView extends FrameView implements MouseListener {
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(mainPanel, "A forrás vagy a cél file nem létezik!");
                 statusMessageLabel.setText("");                 //állapotsor törlése
-                balLista.setEnabled(true);                      //táblázatok engedélyezése
-                jobbLista.setEnabled(true);
-                balLista.setBackground(java.awt.Color.white);
-                jobbLista.setBackground(java.awt.Color.white);
-                progressBar.setIndeterminate(false);
+                enableComponents();
             }
             bytesToCopy += source.getAttributes().getLength();
         }
@@ -902,11 +942,7 @@ public class TGcommanderView extends FrameView implements MouseListener {
                 dest = genEFile(focus,i,false).getFile();
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(mainPanel, "A forrás vagy a cél file nem létezik!");
-                statusMessageLabel.setText("");                 //állapotsor törlése
-                balLista.setEnabled(true);                      //táblázatok engedélyezése
-                jobbLista.setEnabled(true);
-                balLista.setBackground(java.awt.Color.white);
-                jobbLista.setBackground(java.awt.Color.white);
+                enableComponents();
             }
 
             progressBar.setStringPainted(true);
@@ -922,13 +958,12 @@ public class TGcommanderView extends FrameView implements MouseListener {
             } catch (OverwritingException e) {
                 int optionType = JOptionPane.YES_NO_CANCEL_OPTION;
                 Object[] options = {"Felülírás","Átnevezés","Mégse"};
-                int res = JOptionPane.showOptionDialog(mainPanel, "A file már létezik: "+dest.getAbsolutePath()+"! Felülírod?",
+                int res = JOptionPane.showOptionDialog(mainPanel, "Már létezik: "+dest.getAbsolutePath()+"! Felülírod?",
                         "Létező file", optionType,JOptionPane.QUESTION_MESSAGE,null,options,options[2]);
                 if (res == JOptionPane.YES_OPTION) {
                     try {
                         source.copyEntry(dest, true, progressBar);
                     } catch (Exception ex) {
-                        System.out.println("itt abblak");
                         JOptionPane.showMessageDialog(mainPanel, e.getMessage());
                     }
                 } else if (res == JOptionPane.NO_OPTION) {
@@ -941,8 +976,8 @@ public class TGcommanderView extends FrameView implements MouseListener {
         @Override
         public void done() {                                //amikor kész van a másolással
             statusMessageLabel.setText("");                 //állapotsor törlése
-            balLista.setEnabled(true);                      //táblázatok engedélyezése
-            jobbLista.setEnabled(true);
+            enableComponents();
+
             balLista.setBackground(java.awt.Color.white);
             jobbLista.setBackground(java.awt.Color.white);
 
@@ -981,10 +1016,8 @@ public class TGcommanderView extends FrameView implements MouseListener {
 
         }
         int[] rows = t.getSelectedRows();
-        balLista.setEnabled(false);
-        jobbLista.setEnabled(false);
-        balLista.setBackground(java.awt.Color.LIGHT_GRAY);
-        jobbLista.setBackground(java.awt.Color.LIGHT_GRAY);
+
+        disableComponetes();
 
         /*
          * Összegezzuk, hogy hány bájtot kell másolni
@@ -1125,10 +1158,8 @@ public class TGcommanderView extends FrameView implements MouseListener {
             return null;
         }
         int[] rows = t.getSelectedRows();
-        balLista.setEnabled(false);
-        jobbLista.setEnabled(false);
-        balLista.setBackground(java.awt.Color.LIGHT_GRAY);
-        jobbLista.setBackground(java.awt.Color.LIGHT_GRAY);
+
+        disableComponetes();
 
         /*
          * Összegezzuk, hogy hány bájtot kell másolni
@@ -1147,17 +1178,14 @@ public class TGcommanderView extends FrameView implements MouseListener {
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(mainPanel, "A forrás vagy a cél file nem létezik!");
                 statusMessageLabel.setText("");                 //állapotsor törlése
-                balLista.setEnabled(true);                      //táblázatok engedélyezése
-                jobbLista.setEnabled(true);
-                balLista.setBackground(java.awt.Color.white);
-                jobbLista.setBackground(java.awt.Color.white);
+                enableComponents();
                 progressBar.setIndeterminate(false);
             }
             bytesToDelete += source.getAttributes().getLength();
         }
         /*
          * 1024-gyel leosztunk, mert kifuthatunk az int értéktartományából.
-         * Így egy egség a progressBar-on 1KB lesz kb, ez 2 TB másolandót kifut.
+         * Így egy egség a progressBar-on 1KB lesz kb, ez 2 TB-ot kifut.
          */
         int progressBarMaxValue = (int)(bytesToDelete / 1024);
         progressBar.setIndeterminate(false);
@@ -1190,10 +1218,7 @@ public class TGcommanderView extends FrameView implements MouseListener {
         @Override
          public void done() {                                //amikor kész van a másolással
             statusMessageLabel.setText("");                 //állapotsor törlése
-            balLista.setEnabled(true);                      //táblázatok engedélyezése
-            jobbLista.setEnabled(true);
-            balLista.setBackground(java.awt.Color.white);
-            jobbLista.setBackground(java.awt.Color.white);
+            enableComponents();
 
             progressBar.setValue(progressBar.getMaximum()); // mennyen el a végéig biztos, ami biztos... :)
             progressBar.setValue(0);
@@ -1260,13 +1285,13 @@ public class TGcommanderView extends FrameView implements MouseListener {
                     );
                 if (ujNev != null && ujNev.length()>0) {
                     dest = new File (oldal.getFile().getAbsolutePath()+File.separator+ujNev);
-                } else JOptionPane.showMessageDialog(mainPanel, "A file neve nem lehet 0 karakter hosszú!");
+                } else
+                    JOptionPane.showMessageDialog(mainPanel, "Sikertelen átnevezés!");
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(t, "A forrásfile nem létezik!");
             }
             
-            try {
-                // FIXME
+            try {         
                 source.renameEntry(dest, progressBar);
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(t, e.getMessage());
@@ -1277,7 +1302,6 @@ public class TGcommanderView extends FrameView implements MouseListener {
                     "Létező file", optionType,JOptionPane.QUESTION_MESSAGE,null,options,options[2]);
                 if (res == JOptionPane.YES_OPTION) {
                     try {
-                        // FIXME
                         source.copyEntry(dest, true, progressBar);
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(t, e.getMessage());
@@ -1316,6 +1340,7 @@ public class TGcommanderView extends FrameView implements MouseListener {
     private javax.swing.JButton balSzuloGomb;
     private javax.swing.JPopupMenu.Separator elvalaszto1;
     private javax.swing.JToolBar eszkoztar;
+    private javax.swing.JMenu fileMenu;
     private javax.swing.JLabel jobbFajlokSzama;
     private javax.swing.JPanel jobbFelsoPanel;
     private javax.swing.JButton jobbGyokerGomb;
