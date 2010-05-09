@@ -19,19 +19,20 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
+              <Component id="panelek" alignment="0" pref="746" max="32767" attributes="0"/>
               <Group type="102" alignment="0" attributes="0">
-                  <Component id="eszkoztar" pref="736" max="32767" attributes="0"/>
+                  <Component id="eszkoztar" pref="734" max="32767" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
-              <Component id="panelek" alignment="0" pref="746" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="1" attributes="0">
-                  <Component id="panelek" pref="418" max="32767" attributes="0"/>
+                  <Component id="panelek" pref="406" max="32767" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="eszkoztar" min="-2" pref="25" max="-2" attributes="1"/>
+                  <EmptySpace max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -179,6 +180,9 @@
                   <Dimension value="[90, 25]"/>
                 </Property>
               </Properties>
+              <AuxValues>
+                <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="torlesGomb.setMnemonic(KeyEvent.VK_F8);"/>
+              </AuxValues>
             </Component>
             <Component class="javax.swing.JButton" name="kilepesGomb">
               <Properties>
@@ -235,8 +239,8 @@
               <Layout>
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="balFelsoPanel" alignment="0" max="32767" attributes="0"/>
-                      <Component id="balScrollPane" alignment="1" pref="399" max="32767" attributes="0"/>
+                      <Component id="balFelsoPanel" alignment="0" pref="400" max="32767" attributes="0"/>
+                      <Component id="balScrollPane" alignment="1" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
                 <DimensionLayout dim="1">
@@ -244,7 +248,7 @@
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="balFelsoPanel" min="-2" pref="56" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="balScrollPane" pref="354" max="32767" attributes="0"/>
+                          <Component id="balScrollPane" pref="344" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -266,6 +270,7 @@
                   <SubComponents>
                     <Component class="javax.swing.JTable" name="balLista">
                       <Properties>
+                        <Property name="background" type="java.awt.Color" resourceKey="balLista.background"/>
                         <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                           <Connection code="new javax.swing.table.DefaultTableModel(&#xa;    new Object [][] {&#xa;                {null, null, null, null},&#xa;                {null, null, null, null},&#xa;                {null, null, null, null},&#xa;                {null, null, null, null}&#xa;            },&#xa;            new String [] {&#xa;                &quot;N&#xe9;v&quot;, &quot;M&#xe9;ret&quot;, &quot;Utolj&#xe1;ra m&#xf3;dos&#xed;tva&quot;, &quot;Jogosults&#xe1;gok&quot;&#xa;            }&#xa;)" type="code"/>
                         </Property>
@@ -291,15 +296,15 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Group type="102" alignment="1" attributes="0">
-                                      <Component id="balKonyvtar" pref="323" max="32767" attributes="0"/>
+                                      <Component id="balKonyvtar" pref="314" max="32767" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="balGyokerGomb" min="-2" pref="25" max="-2" attributes="0"/>
                                       <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
-                                      <Component id="balSzuloGomb" min="-2" pref="22" max="-2" attributes="0"/>
-                                      <EmptySpace min="-2" pref="11" max="-2" attributes="0"/>
+                                      <Component id="balSzuloGomb" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace min="-2" pref="9" max="-2" attributes="0"/>
                                   </Group>
                                   <Group type="102" alignment="0" attributes="0">
-                                      <Component id="balFajlokSzama" pref="323" max="32767" attributes="0"/>
+                                      <Component id="balFajlokSzama" pref="322" max="32767" attributes="0"/>
                                       <EmptySpace min="-2" pref="66" max="-2" attributes="0"/>
                                   </Group>
                               </Group>
@@ -314,7 +319,7 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="3" attributes="0">
                                   <Component id="balKonyvtar" alignment="3" pref="25" max="32767" attributes="0"/>
-                                  <Component id="balSzuloGomb" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="balSzuloGomb" alignment="3" min="-2" pref="23" max="-2" attributes="0"/>
                                   <Component id="balGyokerGomb" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
@@ -393,7 +398,7 @@
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="jobbFelsoPanel" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jobbScrollPane" pref="354" max="32767" attributes="0"/>
+                          <Component id="jobbScrollPane" pref="343" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -415,6 +420,7 @@
                   <SubComponents>
                     <Component class="javax.swing.JTable" name="jobbLista">
                       <Properties>
+                        <Property name="background" type="java.awt.Color" resourceKey="jobbLista.background"/>
                         <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                           <Connection code="new javax.swing.table.DefaultTableModel(&#xa;    new Object [][] {&#xa;                {null, null, null, null},&#xa;                {null, null, null, null},&#xa;                {null, null, null, null},&#xa;                {null, null, null, null}&#xa;            },&#xa;            new String [] {&#xa;                &quot;N&#xe9;v&quot;, &quot;M&#xe9;ret&quot;, &quot;Utolj&#xe1;ra m&#xf3;dos&#xed;tva&quot;, &quot;Jogosults&#xe1;gok&quot;&#xa;            }&#xa;)" type="code"/>
                         </Property>
@@ -437,15 +443,15 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Group type="102" alignment="1" attributes="0">
-                                      <Component id="jobbKonyvtar" pref="260" max="32767" attributes="0"/>
-                                      <EmptySpace min="-2" pref="8" max="-2" attributes="0"/>
+                                      <Component id="jobbKonyvtar" pref="220" max="32767" attributes="0"/>
+                                      <EmptySpace min="-2" pref="42" max="-2" attributes="0"/>
                                       <Component id="jobbGyokerGomb" min="-2" pref="24" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="jobbSzuloGomb" min="-2" pref="22" max="-2" attributes="0"/>
+                                      <Component id="jobbSzuloGomb" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
                                   </Group>
                                   <Group type="102" alignment="0" attributes="0">
-                                      <Component id="jobbFajlokSzama" pref="270" max="32767" attributes="0"/>
+                                      <Component id="jobbFajlokSzama" pref="268" max="32767" attributes="0"/>
                                       <EmptySpace min="-2" pref="60" max="-2" attributes="0"/>
                                   </Group>
                               </Group>
@@ -460,7 +466,7 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="3" attributes="0">
                                   <Component id="jobbKonyvtar" alignment="3" pref="25" max="32767" attributes="0"/>
-                                  <Component id="jobbSzuloGomb" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jobbSzuloGomb" alignment="3" min="-2" pref="24" max="-2" attributes="0"/>
                                   <Component id="jobbGyokerGomb" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
@@ -678,46 +684,26 @@
                   <EmptySpace pref="335" max="32767" attributes="0"/>
                   <Component id="progressBar" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="statusAnimationLabel" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace max="-2" attributes="0"/>
               </Group>
-              <Component id="statusPanelSeparator" alignment="0" pref="746" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Group type="102" alignment="1" attributes="0">
-                  <Component id="statusPanelSeparator" pref="2" max="32767" attributes="0"/>
+              <Group type="102" alignment="0" attributes="0">
+                  <Component id="progressBar" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="statusMessageLabel" alignment="3" min="-2" pref="14" max="-2" attributes="0"/>
-                      <Component id="statusAnimationLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="progressBar" alignment="3" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
+              </Group>
+              <Group type="102" alignment="0" attributes="0">
+                  <Component id="statusMessageLabel" min="-2" pref="14" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
       </Layout>
       <SubComponents>
-        <Component class="javax.swing.JSeparator" name="statusPanelSeparator">
-          <Properties>
-            <Property name="name" type="java.lang.String" value="statusPanelSeparator" noResource="true"/>
-          </Properties>
-          <AuxValues>
-            <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="true"/>
-            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="0"/>
-          </AuxValues>
-        </Component>
         <Component class="javax.swing.JLabel" name="statusMessageLabel">
           <Properties>
             <Property name="name" type="java.lang.String" value="statusMessageLabel" noResource="true"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JLabel" name="statusAnimationLabel">
-          <Properties>
-            <Property name="horizontalAlignment" type="int" value="2"/>
-            <Property name="name" type="java.lang.String" value="statusAnimationLabel" noResource="true"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JProgressBar" name="progressBar">
