@@ -4,10 +4,10 @@
 
 /*
  * TODO:    *áthelyezésnél és törlésnél nem működik a gyorsgomb
+ *          *oszlopok szélességének megjegyzése
  *          *több fájlra nem működik a másolás/áthelyezés átnevezéssel
  *          *átnevezésnél mégse gombnál is hibaüzenet van (mert nem lehet a fájlnév 0 karakteres)
  *          *gyökér- és szülőkönyvtár gomb a saját oldali táblázatot állítsa be (ne azt, amelyiken a fókusz van)
- *          *a progressbar mutassa, hogy hol tart a másolás
  *          *esetleg space-re könyvtár méretének kijelzése
  *          *táblázat oszlopfejléceire kattintva rendezés
  *          *kommentek, javadoc
@@ -820,13 +820,26 @@ public class TGcommanderView extends FrameView implements MouseListener {
 
    @Action
     public void masolas() {
+            Masolo masolo = new Masolo();        //másoló szál indítása
+            masolo.execute();
+    }
+
+
+    /*
+     * TODO:
+     * Lehet hogy az egész másolást ebbe az osztályba kéne irni, mert
+     * így minden kijelölt sornál létrejön és megcsinálj azt a másolást, de nem
+     * az összeset, a progressBar viszont az összeset mérné...
+     */
+    class Masolo extends SwingWorker<Void, Void> {
+
+        public Void doInBackground() {
+            EFile source = null;
+        File dest = null;
+        JTable t = null;
         saveSelections();
-        EFile oldal = bal;
-        EFile masik = jobb;
-        JTable t = balLista;
+        t = balLista;
         if (focus) {
-            oldal = jobb;
-            masik = bal;
             t = jobbLista;
         }
         if (t.getSelectedRowCount() == 0) {
@@ -851,7 +864,7 @@ public class TGcommanderView extends FrameView implements MouseListener {
         // kiszámoljuk hány bájtot kell másolni
         long bytesToCopy = 0;
         for (int i : rows) {
-            EFile source = null;
+            source = null;
             try {
                 source = genEFile(focus,i,true);
             } catch (Exception ex) {
@@ -877,8 +890,8 @@ public class TGcommanderView extends FrameView implements MouseListener {
          * Másoljuk át a kijelölteket...
          */
         for (int i : rows) {
-            EFile source = null;
-            File dest = null;
+            source = null;
+            dest = null;
             try {
                 source = genEFile(focus,i,true);
                 dest = genEFile(focus,i,false).getFile();
@@ -892,33 +905,11 @@ public class TGcommanderView extends FrameView implements MouseListener {
             }
 
             progressBar.setStringPainted(true);
-
-            Masolo masolo = new Masolo(source, dest, t);        //másoló szál indítása
-            masolo.execute();
-
+            masol(source, dest);
         }
-
-    }
-
-
-    /*
-     * TODO:
-     * Lehet hogy az egész másolást ebbe az osztályba kéne irni, mert
-     * így minden kijelölt sornál létrejön és megcsinálj azt a másolást, de nem
-     * az összeset, a progressBar viszont az összeset mérné...
-     */
-    class Masolo extends SwingWorker<Void, Void> {
-
-        EFile source = null;
-        File dest = null;
-        JTable t = null;
-        Masolo(EFile src, File dst, JTable table) {
-            source = src;
-            dest = dst;
-            t = table;
+        return null;
         }
-
-        public Void doInBackground() {
+    private void masol(EFile source, File dest) {
             try {
                 source.copyEntry(dest, false, progressBar);
             } catch (IOException e) {
@@ -935,13 +926,12 @@ public class TGcommanderView extends FrameView implements MouseListener {
                         JOptionPane.showMessageDialog(mainPanel, e.getMessage());
                     }
                 } else if (res == JOptionPane.NO_OPTION) {
-                    atnevezes();
-                    doInBackground();
+                    source = new EFile(atnevezes());
+                    dest = new File(dest.getParent()+File.separator+source.getFile().getName());
+                    if (source!=null) {masol(source,dest);};
                 }
             }
-        return null;
-        }
-
+            }
         @Override
         public void done() {                                //amikor kész van a másolással
             statusMessageLabel.setText("");                 //állapotsor törlése
@@ -1088,10 +1078,12 @@ public class TGcommanderView extends FrameView implements MouseListener {
     }
 
     @Action
-    public void atnevezes() {
+    public File atnevezes() {
         EFile oldal = bal;
         EFile masik = jobb;
         JTable t = balLista;
+        EFile source = null;
+        File dest = null;
         if (focus) {
             oldal = jobb;
             masik = bal;
@@ -1102,8 +1094,8 @@ public class TGcommanderView extends FrameView implements MouseListener {
         }
         int[] rows = t.getSelectedRows();
         for (int i : rows) {
-            EFile source = null;
-            File dest = null;
+            source = null;
+            dest = null;
             try {
                 source = genEFile(focus,i,true);
                 String ujNev = (String)JOptionPane.showInputDialog(
@@ -1145,14 +1137,13 @@ public class TGcommanderView extends FrameView implements MouseListener {
             }
         }
         refresh();
+        return dest;
     }
 
     @Action
     public void rejtettFajlok() {
         showHidden=rejtettFajlMenupont.isSelected();
         refresh();
-        jobbFajlokSzama.setText(fajlOsszesites(jobb,showHidden));
-        balFajlokSzama.setText(fajlOsszesites(bal,showHidden));
     }
 
    
