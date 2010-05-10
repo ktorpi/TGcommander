@@ -21,7 +21,7 @@
           <Group type="103" groupAlignment="0" attributes="0">
               <Component id="panelek" alignment="0" pref="746" max="32767" attributes="0"/>
               <Group type="102" alignment="0" attributes="0">
-                  <Component id="eszkoztar" pref="734" max="32767" attributes="0"/>
+                  <Component id="eszkoztar" pref="746" max="32767" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
           </Group>
@@ -29,7 +29,7 @@
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="1" attributes="0">
-                  <Component id="panelek" pref="406" max="32767" attributes="0"/>
+                  <Component id="panelek" pref="424" max="32767" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="eszkoztar" min="-2" pref="25" max="-2" attributes="1"/>
                   <EmptySpace max="-2" attributes="0"/>
@@ -239,8 +239,8 @@
               <Layout>
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="balFelsoPanel" alignment="0" pref="403" max="32767" attributes="0"/>
-                      <Component id="balScrollPane" alignment="1" pref="403" max="32767" attributes="0"/>
+                      <Component id="balFelsoPanel" alignment="0" max="32767" attributes="0"/>
+                      <Component id="balScrollPane" alignment="1" pref="399" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
                 <DimensionLayout dim="1">
@@ -248,7 +248,7 @@
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="balFelsoPanel" min="-2" pref="56" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="balScrollPane" pref="344" max="32767" attributes="0"/>
+                          <Component id="balScrollPane" pref="360" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -296,7 +296,7 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Group type="102" alignment="1" attributes="0">
-                                      <Component id="balKonyvtar" pref="314" max="32767" attributes="0"/>
+                                      <Component id="balKonyvtar" pref="327" max="32767" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="balGyokerGomb" min="-2" pref="25" max="-2" attributes="0"/>
                                       <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
@@ -304,7 +304,7 @@
                                       <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
                                   </Group>
                                   <Group type="102" alignment="0" attributes="0">
-                                      <Component id="balFajlokSzama" pref="322" max="32767" attributes="0"/>
+                                      <Component id="balFajlokSzama" pref="320" max="32767" attributes="0"/>
                                       <EmptySpace min="-2" pref="69" max="-2" attributes="0"/>
                                   </Group>
                               </Group>
@@ -350,6 +350,9 @@
                           <Dimension value="[17, 23]"/>
                         </Property>
                       </Properties>
+                      <Events>
+                        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="balGyokerGombMouseClicked"/>
+                      </Events>
                     </Component>
                     <Component class="javax.swing.JButton" name="balSzuloGomb">
                       <Properties>
@@ -359,6 +362,9 @@
                         </Property>
                         <Property name="name" type="java.lang.String" value="balSzuloGomb" noResource="true"/>
                       </Properties>
+                      <Events>
+                        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="balSzuloGombMouseClicked"/>
+                      </Events>
                     </Component>
                     <Component class="javax.swing.JLabel" name="balFajlokSzama">
                       <Properties>
@@ -392,7 +398,7 @@
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="jobbFelsoPanel" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jobbScrollPane" pref="343" max="32767" attributes="0"/>
+                          <Component id="jobbScrollPane" pref="360" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -437,7 +443,7 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Group type="102" alignment="1" attributes="0">
-                                      <Component id="jobbKonyvtar" pref="220" max="32767" attributes="0"/>
+                                      <Component id="jobbKonyvtar" pref="231" max="32767" attributes="0"/>
                                       <EmptySpace min="-2" pref="42" max="-2" attributes="0"/>
                                       <Component id="jobbGyokerGomb" min="-2" pref="24" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
@@ -445,7 +451,7 @@
                                       <EmptySpace max="-2" attributes="0"/>
                                   </Group>
                                   <Group type="102" alignment="0" attributes="0">
-                                      <Component id="jobbFajlokSzama" pref="268" max="32767" attributes="0"/>
+                                      <Component id="jobbFajlokSzama" pref="270" max="32767" attributes="0"/>
                                       <EmptySpace min="-2" pref="60" max="-2" attributes="0"/>
                                   </Group>
                               </Group>
@@ -493,6 +499,9 @@
                           <Dimension value="[17, 23]"/>
                         </Property>
                       </Properties>
+                      <Events>
+                        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jobbGyokerGombMouseClicked"/>
+                      </Events>
                     </Component>
                     <Component class="javax.swing.JButton" name="jobbSzuloGomb">
                       <Properties>
@@ -504,6 +513,9 @@
                         </Property>
                         <Property name="name" type="java.lang.String" value="jobbSzuloGomb" noResource="true"/>
                       </Properties>
+                      <Events>
+                        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jobbSzuloGombMouseClicked"/>
+                      </Events>
                     </Component>
                     <Component class="javax.swing.JLabel" name="jobbFajlokSzama">
                       <Properties>
@@ -671,7 +683,7 @@
               <Group type="102" alignment="1" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="statusMessageLabel" min="-2" pref="241" max="-2" attributes="0"/>
-                  <EmptySpace pref="335" max="32767" attributes="0"/>
+                  <EmptySpace pref="339" max="32767" attributes="0"/>
                   <Component id="progressBar" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
