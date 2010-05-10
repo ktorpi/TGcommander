@@ -1,11 +1,25 @@
 /*
- * TGcommanderAboutBox.java
+ * SZTE-TTIK
+ * Programozás I.
+ * Tehtességgondozós projektfeladat: Total Commander szerű fájkezelő
+ *
+ * Készítette: Bán Dénes
+ *             Bíró Tímea
+ *             Kádár István
+ *
+ * Weboldal: http://github.com/ktorpi/TGcommander
+ *
+ * 2010. május 10.
  */
 
 package tgcommander;
 
 import org.jdesktop.application.Action;
 
+/**
+ * Névjegy dialog.
+ * @author Kádár István
+ */
 public class TGcommanderAboutBox extends javax.swing.JDialog {
 
     public TGcommanderAboutBox(java.awt.Frame parent) {
@@ -28,14 +42,11 @@ public class TGcommanderAboutBox extends javax.swing.JDialog {
 
         closeButton = new javax.swing.JButton();
         javax.swing.JLabel appTitleLabel = new javax.swing.JLabel();
-        javax.swing.JLabel versionLabel = new javax.swing.JLabel();
-        javax.swing.JLabel appVersionLabel = new javax.swing.JLabel();
-        javax.swing.JLabel vendorLabel = new javax.swing.JLabel();
-        javax.swing.JLabel appVendorLabel = new javax.swing.JLabel();
         javax.swing.JLabel homepageLabel = new javax.swing.JLabel();
         javax.swing.JLabel appHomepageLabel = new javax.swing.JLabel();
         javax.swing.JLabel appDescLabel = new javax.swing.JLabel();
-        javax.swing.JLabel imageLabel = new javax.swing.JLabel();
+        javax.swing.JLabel homepageLabel1 = new javax.swing.JLabel();
+        javax.swing.JLabel appHomepageLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(tgcommander.TGcommanderApp.class).getContext().getResourceMap(TGcommanderAboutBox.class);
@@ -52,20 +63,6 @@ public class TGcommanderAboutBox extends javax.swing.JDialog {
         appTitleLabel.setText(resourceMap.getString("Application.title")); // NOI18N
         appTitleLabel.setName("appTitleLabel"); // NOI18N
 
-        versionLabel.setFont(versionLabel.getFont().deriveFont(versionLabel.getFont().getStyle() | java.awt.Font.BOLD));
-        versionLabel.setText(resourceMap.getString("versionLabel.text")); // NOI18N
-        versionLabel.setName("versionLabel"); // NOI18N
-
-        appVersionLabel.setText(resourceMap.getString("Application.version")); // NOI18N
-        appVersionLabel.setName("appVersionLabel"); // NOI18N
-
-        vendorLabel.setFont(vendorLabel.getFont().deriveFont(vendorLabel.getFont().getStyle() | java.awt.Font.BOLD));
-        vendorLabel.setText(resourceMap.getString("vendorLabel.text")); // NOI18N
-        vendorLabel.setName("vendorLabel"); // NOI18N
-
-        appVendorLabel.setText(resourceMap.getString("Application.vendor")); // NOI18N
-        appVendorLabel.setName("appVendorLabel"); // NOI18N
-
         homepageLabel.setFont(homepageLabel.getFont().deriveFont(homepageLabel.getFont().getStyle() | java.awt.Font.BOLD));
         homepageLabel.setText(resourceMap.getString("homepageLabel.text")); // NOI18N
         homepageLabel.setName("homepageLabel"); // NOI18N
@@ -76,55 +73,50 @@ public class TGcommanderAboutBox extends javax.swing.JDialog {
         appDescLabel.setText(resourceMap.getString("appDescLabel.text")); // NOI18N
         appDescLabel.setName("appDescLabel"); // NOI18N
 
-        imageLabel.setIcon(resourceMap.getIcon("imageLabel.icon")); // NOI18N
-        imageLabel.setName("imageLabel"); // NOI18N
+        homepageLabel1.setFont(homepageLabel1.getFont().deriveFont(homepageLabel1.getFont().getStyle() | java.awt.Font.BOLD));
+        homepageLabel1.setText(resourceMap.getString("homepageLabel1.text")); // NOI18N
+        homepageLabel1.setName("homepageLabel1"); // NOI18N
+
+        appHomepageLabel1.setText(resourceMap.getString("appHomepageLabel1.text")); // NOI18N
+        appHomepageLabel1.setName("appHomepageLabel1"); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(imageLabel)
-                .addGap(18, 18, 18)
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(versionLabel)
-                            .addComponent(vendorLabel)
-                            .addComponent(homepageLabel))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(appVersionLabel)
-                            .addComponent(appVendorLabel)
-                            .addComponent(appHomepageLabel)))
                     .addComponent(appTitleLabel, javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(appDescLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 270, Short.MAX_VALUE)
-                    .addComponent(closeButton))
+                    .addComponent(appDescLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 353, Short.MAX_VALUE)
+                    .addComponent(homepageLabel1, javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(homepageLabel, javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(closeButton)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(appHomepageLabel)
+                            .addComponent(appHomepageLabel1))
+                        .addGap(73, 73, 73)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(imageLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(appTitleLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(appDescLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(16, 16, 16)
+                .addComponent(homepageLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(versionLabel)
-                    .addComponent(appVersionLabel))
+                .addComponent(appHomepageLabel1)
+                .addGap(18, 18, 18)
+                .addComponent(homepageLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(vendorLabel)
-                    .addComponent(appVendorLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(homepageLabel)
-                    .addComponent(appHomepageLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 19, Short.MAX_VALUE)
+                .addComponent(appHomepageLabel)
+                .addGap(9, 9, 9)
                 .addComponent(closeButton)
-                .addContainerGap())
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();

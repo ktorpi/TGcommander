@@ -1,5 +1,15 @@
 /*
- * TGcommanderApp.java
+ * SZTE-TTIK
+ * Programozás I.
+ * Tehtességgondozós projektfeladat: Total Commander szerű fájkezelő
+ *
+ * Készítette: Bán Dénes
+ *             Bíró Tímea
+ *             Kádár István
+ *
+ * Weboldal: http://github.com/ktorpi/TGcommander
+ *
+ * 2010. május 10.
  */
 
 package tgcommander;

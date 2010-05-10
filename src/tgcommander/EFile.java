@@ -1,3 +1,17 @@
+/*
+ * SZTE-TTIK
+ * Programozás I.
+ * Tehtességgondozós projektfeladat: Total Commander szerű fájkezelő
+ *
+ * Készítette: Bán Dénes
+ *             Bíró Tímea
+ *             Kádár István
+ *
+ * Weboldal: http://github.com/ktorpi/TGcommander
+ *
+ * 2010. május 10.
+ */
+
 package tgcommander;
 
 import java.io.File;
@@ -82,7 +96,7 @@ public class EFile {
      * másolódnak a dest alá.
      * @param forced Ha ture és már létezik a célfájl, nem kérdezünk, hanem felülírjuk.
      * 
-     * @param pBar
+     * @param pBar A folyamathoz tartozó progressbar.
      * @throws IOException Hiba lépett fel a másolás közben.
      * @throws OverwritingException Már létezika  célfájl.
      */
@@ -125,7 +139,7 @@ public class EFile {
     /**
      * A csomagolt 'file'-hoz tartozó bejegyzést törlése. Amennyiben a file mappa
      * és nem üres, rekurzívan töröljük.
-     * @param pBar
+     * @param pBar A folyamathoz tartozó progressbar.
      * @return false Ha a törlés nemsikerült (pl.: jogosultságok miatt).
      * @throws IOException
      */
@@ -157,6 +171,27 @@ public class EFile {
         }
     }
 
+
+    /**
+     * Áthelyezés másolás + törléssel.
+     * @param dest A cél.
+     * @param forced Nem kérdez rá felülirásra ha true.
+     * @param pBar A folymathoz tartozó progressbar.
+     * @throws IOException IO hiba.
+     * @throws OverwritingException A cél már létezik.
+     */
+    public void moveWithCopyAndDelete(File dest, boolean forced, JProgressBar pBar) throws IOException, OverwritingException {
+        if (!dest.exists() || forced) {
+            copyEntry(dest, forced, pBar);
+            if (!deleteEntry(pBar)) {
+                throw new IOException("Nem sikerült törölni: "
+                        + file.getAbsolutePath());
+            }
+        } else {
+            throw new OverwritingException("Már létezik: " + dest.getAbsolutePath());
+        }
+    }
+
     /**
      * Átnevezés/áthelyezés. Ha a "gyári" renameTo() metódusnak nem sikerül
      * a művelet (pl. mert a cél egy másik fájlrendszeren van), akkor a
@@ -169,11 +204,7 @@ public class EFile {
     public void renameEntry(File dest, JProgressBar pBar) throws IOException, OverwritingException {
         if (!dest.exists()) {
             if (!file.renameTo(dest)) {             // ha nem sikerült átnevezéssel, akkor másolás-törlés
-                copyEntry(dest, false, pBar);
-                if (!deleteEntry(pBar)) {
-                    throw new IOException("Nem sikerült törölni a következőt: "
-                            + file.getAbsolutePath());
-                }
+               throw new IOException("Sikertelen átnevezés!");
             } else {                                // sikerült
                 // gyors készvagyunk vele...
                 pBar.setValue(pBar.getMaximum());
