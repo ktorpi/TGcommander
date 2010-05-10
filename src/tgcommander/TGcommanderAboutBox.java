@@ -17,7 +17,7 @@ package tgcommander;
 import org.jdesktop.application.Action;
 
 /**
- * Névjegy dialog.
+ * Névjegy dialog. A Netbeans formeditorjával készült.
  * @author Kádár István
  */
 public class TGcommanderAboutBox extends javax.swing.JDialog {

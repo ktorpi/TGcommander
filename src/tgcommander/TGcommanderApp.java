@@ -10,6 +10,8 @@
  * Weboldal: http://github.com/ktorpi/TGcommander
  *
  * 2010. május 10.
+ *
+ * A program Linux platformon futtatandó!
  */
 
 package tgcommander;

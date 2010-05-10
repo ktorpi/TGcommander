@@ -1,0 +1,37 @@
+A program Linux platformra készült, egy gyökérfájlrendszert kezelünk, nem foglakozunk a különféle meghajtókkal.
+Egyidőben csak egy művelet végrahajtása lehetséges. Szálkezeléssel nem fogkalkozunk, ha elindítunk egy műveletet, letiltunk minden komponest, amivel újat lehetne indítani.
+
+Műveletek
+
+    * fájl/könyvtár másolás
+          o könyvtár rekurzívan
+    * fájl/könyvtár törlés
+          o könyvtár rekurzívan
+    * fál/könyvtár áthelyezés
+          o ha a File osztály renameTo() metódusával nem sikerül: másolás-törlés
+    * átnevezés
+    * könyvtár léterhozás
+    * rejtett fájlok szűrése
+    * másoláskor/áthelyezéskor ha a cél márlétezik rákérdezünk a felülírásra, van lehetőség átnevezésre ekkor
+
+GUI
+
+    * kétpaneles nézet
+          o JSplitPane-nel elválasztott 2 JTable táblázat a fájlok/könyvtárak megjelenítésére
+          o név, kiterjesztés, méret, legutóbbi módosítás dátuma, jogosultásgok(rwx) megjelenítése a táblázat oszlopaiban
+          o fájlok/mappák kijelölése az egér bal gombjával, nem szomszédos elemek kijelölése ctrl + balKlikk
+          o ctrl + A: összes sor kijelölése
+          o tab billentyűvel váltogathatunk az oldalak között
+    * gombok a gyökérkönyvtárba és a szülökönyvtárba ugráshoz
+    * menü
+          o menüből elérhető fájl- és mappaműveletek
+          o rejtett fájlok megjelenítésének ki/be kapcsolása
+          o névjegy
+    * alsó gombsor a műveleteknek megfelelően
+    * gyorsbillentyűk
+    * statuspanel az ablak alján
+          o progressbar kijelzi a folyamatban lévő művelet állapotát
+          o egy lable kiiírja a folyamtban lévő műveletet (másolás, törlés, stb.)
+
+
+
